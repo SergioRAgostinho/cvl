@@ -12,6 +12,7 @@
 #include <cvl/common/eigen.h>
 #include <opencv2/videoio.hpp>
 #include <opencv2/core.hpp>
+#include <fstream>
 #include <string>
 
 namespace ht
@@ -26,10 +27,10 @@ namespace ht
 
       /** \brief Signature for the callback function of the vgm data set
         * \param[in] cv::Mat - an image
-        * \param[in] Vector3f - rotation from groundtruth
-        * \param[in] Vector3f - translation from groundtruth
+        * \param[in] Vector4f - rotation from groundtruth
+        * \param[in] Vector4f - translation from groundtruth
         */
-      typedef void (cb_vgm) (const cv::Mat&, const Vector3f&, const Vector3f&);
+      typedef void (cb_vgm) (const cv::Mat&, const Vector4f&, const Vector4f&);
 
       //////////////////////////////////////////////////////
       //                  Methods
@@ -78,6 +79,14 @@ namespace ht
       /** \brief The image capuring device */
       cv::VideoCapture vc_;
 
+      /** \brief The file handler responsible for reading the segments
+        * section of the grountruth data */
+      std::ifstream f_segments_;
+
+      /** \brief The file handler responsible for reading the trajectories
+        * section of the grountruth data */
+      std::ifstream f_trajectories_;
+
       //////////////////////////////////////////////////////
       //                  Methods
       //////////////////////////////////////////////////////
@@ -86,8 +95,8 @@ namespace ht
         *  new data
         */
       void cbVgm (const cv::Mat& frame,
-                  const Vector3f& rvec,
-                  const Vector3f& tvec) const;
+                  const Vector4f& rvec,
+                  const Vector4f& tvec) const;
 
       static std::set<Mode> initSupportedModes ();
 

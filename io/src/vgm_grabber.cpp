@@ -60,7 +60,7 @@ ht::VgmGrabber::trigger ()
   }
 
   // notify
-  cbVgm (frame, Vector3f (), Vector3f ());
+  cbVgm (frame, Vector4f (), Vector4f ());
 }
 
 ///////////////////////////////////////////////
@@ -69,8 +69,8 @@ ht::VgmGrabber::trigger ()
 
 void
 ht::VgmGrabber::cbVgm ( const cv::Mat& frame,
-                        const Vector3f& rvec,
-                        const Vector3f& tvec) const
+                        const Vector4f& rvec,
+                        const Vector4f& tvec) const
 {
   for (const FunctionBase* const f : registered_cbs_.at (typeid (cb_vgm).name ()))
     static_cast<const Function<cb_vgm>*> (f)->operator() (frame, rvec, tvec);
@@ -134,7 +134,7 @@ ht::VgmGrabber::parseCamera (const std::string& path)
   }
 
   // Parse intrinsics matrix
-  cam_.k = Matrix3d::Identity ();
+  cam_.k = Matrix43d::Identity ();
   cam_.k(0, 0) = cam_.k(1, 1) = el->DoubleAttribute ("FOCAL_LENGTH");
   att = el->Attribute ("PRINCIPAL_POINT");
   int n = sscanf (att, "%20lf %20lf", &cam_.k(0, 2), &cam_.k(1, 2));
@@ -150,7 +150,7 @@ ht::VgmGrabber::parseCamera (const std::string& path)
   att = el->Attribute ("ORIENTATION");
   n = sscanf (att, "%20lf %20lf %20lf %20lf", &q.x (), &q.y (), &q.z (), &q.w ());
 
-  Vector3d t;
+  Vector4d t (0, 0, 0, 0);
   att = el->Attribute ("POSITION");
   n += sscanf (att, "%20lf %20lf %20lf", &t[0], &t[1], &t[2]);
   if (n < 7)
@@ -161,8 +161,9 @@ ht::VgmGrabber::parseCamera (const std::string& path)
   }
   
   // Perform final conversion to storage 
-  cam_.rvec = -rodrigues (q);
-  cam_.tvec = -rotate (cam_.rvec, t);
+  cam_.rvec = angle_axis (q);
+  cam_.rvec[0] *= -1;
+  cam_.tvec = -rotate4 (cam_.rvec, t);
   return true;
 }
 
