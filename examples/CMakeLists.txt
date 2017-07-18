@@ -4,5 +4,5 @@
 
 set (TARGET_NAME_PREFIX "${PROJECT_NAME}_examples")
 
-# add_subdirectory (vgm_grabber)
+add_subdirectory (vgm_grabber)
 add_subdirectory (test)

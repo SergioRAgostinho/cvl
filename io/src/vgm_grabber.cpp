@@ -13,6 +13,15 @@
 //                  Public
 ///////////////////////////////////////////////
 
+ht::VgmGrabber::VgmGrabber (const char* const path)
+  : Grabber (initSupportedSigs (), initSupportedModes ())
+{
+  parsePathAndName (path);
+  parseCamera (path_ + '/' + name_ + '/' + name_ + ".xcp");
+  streampos_s_ = findStreamPos ("Segments");
+  streampos_t_ = findStreamPos ("Trajectories");
+}
+
 bool
 ht::VgmGrabber::start ()
 {
@@ -24,10 +33,31 @@ ht::VgmGrabber::start ()
     return false;
   }
 
+  // Open text file and seek till after que provided sequence
+  f_s_.open (path_ + '/' + name_ + '/' + name_ + ".csv");
+  if (!f_s_.is_open ())
+  {
+    std::cerr << "ERROR: Failed to open groudtruth file" << std::endl;
+    stop ();
+    return false;
+  }
+  f_s_.seekg (streampos_s_);
+
+  // Open text file and seek till after que provided trajectories
+  f_t_.open (path_ + '/' + name_ + '/' + name_ + ".csv");
+  if (!f_t_.is_open ())
+  {
+    std::cerr << "ERROR: Failed to open groudtruth file" << std::endl;
+    stop ();
+    return false;
+  }
+  f_t_.seekg (streampos_t_);
+
   // launch async thread if mode requires
   if (mode_ == Mode::ASYNC)
     thread_ = std::thread (&VgmGrabber::run, this);
 
+  frame_nr_ = 0;
   running_ = true;
   return true;
 }
@@ -41,12 +71,29 @@ ht::VgmGrabber::stop ()
 
   if (vc_.isOpened ())
     vc_.release ();
+
+  if (f_s_.is_open ())
+    f_s_.close ();
+
+  if (f_t_.is_open ())
+    f_t_.close ();
 }
 
 void
 ht::VgmGrabber::trigger ()
 {
   if (!running_)
+    return;
+
+  std::string str;
+  if (!std::getline (f_s_, str))
+  {
+    running_ = false;
+    return;
+  }
+
+  // ignore data from every odd iteration
+  if (frame_nr_++ % 2)
     return;
 
   cv::Mat frame;
@@ -59,8 +106,19 @@ ht::VgmGrabber::trigger ()
     return;
   }
 
+  Vector3f euler;
+  Vector4f rvec (0.f, 0.f, 0.f, 0.f);
+  Vector4f tvec (0.f, 0.f, 0.f, 0.f);
+  size_t id;
+  sscanf (str.c_str (),
+          "%lu,%*u,%f,%f,%f,%f,%f,%f",
+          &id,
+          &euler[0], &euler[1], &euler[2],
+          &tvec[0], &tvec[1], &tvec[2]);
+
+
   // notify
-  cbVgm (frame, Vector4f (), Vector4f ());
+  cbVgm (id, frame.clone (), rvec, tvec);
 }
 
 ///////////////////////////////////////////////
@@ -68,18 +126,39 @@ ht::VgmGrabber::trigger ()
 ///////////////////////////////////////////////
 
 void
-ht::VgmGrabber::cbVgm ( const cv::Mat& frame,
+ht::VgmGrabber::cbVgm ( const size_t id,
+                        const cv::Mat& frame,
                         const Vector4f& rvec,
                         const Vector4f& tvec) const
 {
   for (const FunctionBase* const f : registered_cbs_.at (typeid (cb_vgm).name ()))
-    static_cast<const Function<cb_vgm>*> (f)->operator() (frame, rvec, tvec);
+    (*static_cast<const Function<cb_vgm>*> (f)) (id, frame, rvec, tvec);
+}
+
+size_t
+ht::VgmGrabber::findStreamPos (const char* const id) const
+{
+  std::ifstream ifs (path_ + '/' + name_ + '/' + name_ + ".csv");
+  std::string line;
+  while (std::getline (ifs, line))
+  {
+    if (!line.compare (id))
+    {
+      // discard four lines
+      ifs.ignore (std::numeric_limits<std::streamsize>::max (), '\n');
+      ifs.ignore (std::numeric_limits<std::streamsize>::max (), '\n');
+      ifs.ignore (std::numeric_limits<std::streamsize>::max (), '\n');
+      ifs.ignore (std::numeric_limits<std::streamsize>::max (), '\n');
+      return ifs.tellg ();
+    }
+  }
+  return ifs.tellg ();
 }
 
 std::set<ht::Grabber::Mode>
 ht::VgmGrabber::initSupportedModes ()
 {
-  static const std::set<Mode> s { Mode::ASYNC };
+  static const std::set<Mode> s { Mode::ASYNC, Mode::TRIGGER };
   return s; //copy elision
 }
 

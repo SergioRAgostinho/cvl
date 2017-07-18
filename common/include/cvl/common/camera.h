@@ -14,7 +14,7 @@ namespace ht
   template<typename _Float>
   struct Camera
   {
-    Matrix<_Float, 4, 3> k; //vectorization
+    Matrix43<_Float> k; //vectorization
     Vector4<_Float> rvec;
     Vector4<_Float> tvec;
     unsigned int width;

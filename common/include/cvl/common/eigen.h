@@ -27,6 +27,7 @@ namespace ht
   using Matrix4 = Matrix<_Scalar, 4, 4>;
 
   typedef Matrix3<double> Matrix3d;
+  typedef Matrix4<double> Matrix4d;
 
   template<typename _Scalar>
   using Matrix43 = Matrix<_Scalar, 4, 3>;
@@ -43,10 +44,10 @@ namespace ht
   template<typename _Scalar>
   using Vector4 = Vector<_Scalar, 4>;
 
-  using Eigen::Vector3f;
-  using Eigen::Vector3d;
-  using Eigen::Vector4f;
-  using Eigen::Vector4d;
+  typedef Vector3<float> Vector3f;
+  typedef Vector4<float> Vector4f;
+  typedef Vector3<double> Vector3d;
+  typedef Vector4<double> Vector4d;
 
   // Quaternion
   using Eigen::QuaternionBase;
