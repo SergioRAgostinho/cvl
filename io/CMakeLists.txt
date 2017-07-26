@@ -39,8 +39,8 @@ if (BUILD_${MODULE_NAME})
 
   if (TinyXML2_FOUND)
     target_link_libraries (${TARGET_NAME}
-                            PUBLIC ${TinyXML2_LIBRARIES})
+                              PRIVATE ${TinyXML2_LDFLAGS})
     target_include_directories (${TARGET_NAME}
-                                  PUBLIC ${TinyXML2_INCLUDE_DIRS})
+                                  PRIVATE ${TinyXML2_INCLUDE_DIRS})
   endif (TinyXML2_FOUND)
 endif (BUILD_${MODULE_NAME})

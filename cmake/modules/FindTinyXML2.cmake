@@ -11,13 +11,11 @@
 # TinyXML2_LIBRARIES - full path to the library
 #
 
-# set (TinyXML2_FOUND FALSE)
-
 # piggyback on pkgconfif for now
 find_package (PkgConfig)
 
 if (PKG_CONFIG_FOUND)
-  pkg_check_modules(TinyXML2 tinyxml>=2)
+  pkg_check_modules(TinyXML2 tinyxml2)
 endif (PKG_CONFIG_FOUND)
 
 if (NOT TinyXML2_FOUND)
