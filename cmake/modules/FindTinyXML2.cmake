@@ -17,11 +17,11 @@
 find_package (PkgConfig)
 
 if (PKG_CONFIG_FOUND)
-  pkg_check_modules(TinyXML2 tinyxml2)
+  pkg_check_modules(TinyXML2 tinyxml>=2)
 endif (PKG_CONFIG_FOUND)
 
 if (NOT TinyXML2_FOUND)
   find_package_handle_standard_args (TinyXML2 FOUND_VAR TinyXML2_FOUND
-                                            REQUIRED_VARS "TinyXML2_INCLUDE_DIRS"
-                                                          "TinyXML2_LIBRARIES")
+                                            	REQUIRED_VARS "TinyXML2_INCLUDE_DIRS"
+                                              	            "TinyXML2_LIBRARIES")
 endif (NOT TinyXML2_FOUND)
