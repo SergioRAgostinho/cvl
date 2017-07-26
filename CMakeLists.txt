@@ -8,7 +8,7 @@ project (cvl)
 
 
 #compiler requirements
-set (CMAKE_CXX_STANDARD 11)
+set (CMAKE_CXX_STANDARD 14)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #warning settings 
@@ -28,6 +28,7 @@ set (BUILD_SHARED_LIBS ON)
 
 # Additional utilities
 include ("cmake/macros.cmake")
+include ("cmake/functions.cmake")
 
 #check for dependencies
 find_package (Threads REQUIRED)
@@ -35,6 +36,7 @@ find_package (Eigen3 REQUIRED)
 find_package (OpenCV 3.0 REQUIRED)
 find_package (VTK REQUIRED)
 find_package (TinyXML2)
+find_package (Matlab)
 find_package (GTest)
 
 # Recurse into subdirectories
