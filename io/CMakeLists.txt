@@ -17,14 +17,16 @@ if (BUILD_${MODULE_NAME})
   set (sources
           "src/grabber.cpp")
 
-  if (TinyXML2_FOUND)
-    list (APPEND headers "include/cvl/io/vgm_grabber.h")
-    list (APPEND sources "src/vgm_grabber.cpp")
-  endif (TinyXML2_FOUND)
-
   if (Matlab_FOUND)
-    list (APPEND headers "include/cvl/io/mat_io.h")
-    list (APPEND sources "src/mat_io.cpp")
+    list (APPEND headers  "include/cvl/io/mat_io.h"
+                          "include/cvl/io/vgm_model_reader.h")
+    list (APPEND sources  "src/mat_io.cpp"
+                          "src/vgm_model_reader.cpp")
+
+    if (TinyXML2_FOUND)
+      list (APPEND headers "include/cvl/io/vgm_grabber.h")
+      list (APPEND sources "src/vgm_grabber.cpp")
+    endif (TinyXML2_FOUND)
   endif (Matlab_FOUND)
 
   #target properie and creation
@@ -43,4 +45,11 @@ if (BUILD_${MODULE_NAME})
     target_include_directories (${TARGET_NAME}
                                   PRIVATE ${TinyXML2_INCLUDE_DIRS})
   endif (TinyXML2_FOUND)
+
+  if (Matlab_FOUND)
+    target_link_libraries (${TARGET_NAME}
+                              PRIVATE ${Matlab_LIBRARIES})
+    target_include_directories (${TARGET_NAME}
+                                  PRIVATE ${Matlab_INCLUDE_DIRS})
+  endif (Matlab_FOUND)
 endif (BUILD_${MODULE_NAME})
