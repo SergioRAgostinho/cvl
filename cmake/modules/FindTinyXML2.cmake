@@ -11,8 +11,6 @@
 # TinyXML2_LIBRARIES - full path to the library
 #
 
-# set (TinyXML2_FOUND FALSE)
-
 # piggyback on pkgconfif for now
 find_package (PkgConfig)
 
@@ -22,6 +20,6 @@ endif (PKG_CONFIG_FOUND)
 
 if (NOT TinyXML2_FOUND)
   find_package_handle_standard_args (TinyXML2 FOUND_VAR TinyXML2_FOUND
-                                            REQUIRED_VARS "TinyXML2_INCLUDE_DIRS"
-                                                          "TinyXML2_LIBRARIES")
+                                            	REQUIRED_VARS "TinyXML2_INCLUDE_DIRS"
+                                              	            "TinyXML2_LIBRARIES")
 endif (NOT TinyXML2_FOUND)

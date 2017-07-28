@@ -3,7 +3,7 @@
 # \data last modified: 2017/05/05
 
 # Project configurations
-cmake_minimum_required (VERSION 3.1)
+cmake_minimum_required (VERSION 3.7)
 project (cvl)
 
 
@@ -28,6 +28,7 @@ set (BUILD_SHARED_LIBS ON)
 
 # Additional utilities
 include ("cmake/macros.cmake")
+include ("cmake/functions.cmake")
 
 #check for dependencies
 find_package (Threads REQUIRED)
@@ -35,6 +36,7 @@ find_package (Eigen3 REQUIRED)
 find_package (OpenCV 3.0 REQUIRED)
 find_package (VTK REQUIRED)
 find_package (TinyXML2)
+find_package (Matlab COMPONENTS MAT_LIBRARY MX_LIBRARY)
 find_package (GTest)
 
 # Recurse into subdirectories
