@@ -13,9 +13,11 @@ set (BUILD_${MODULE_NAME} TRUE
 if (BUILD_${MODULE_NAME})
   #files
   set (headers
-          "include/cvl/io/grabber.h")
+          "include/cvl/io/grabber.h"
+          "include/cvl/io/utils.h")
   set (sources
-          "src/grabber.cpp")
+          "src/grabber.cpp"
+          "src/utils.cpp")
 
   if (Matlab_FOUND)
     list (APPEND headers  "include/cvl/io/mat_io.h"

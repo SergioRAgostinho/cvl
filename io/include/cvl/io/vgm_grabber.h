@@ -12,6 +12,7 @@
 #include <cvl/common/eigen.h>
 #include <opencv2/videoio.hpp>
 #include <opencv2/core.hpp>
+#include <fstream>
 #include <string>
 
 namespace ht
@@ -25,22 +26,21 @@ namespace ht
       //////////////////////////////////////////////////////
 
       /** \brief Signature for the callback function of the vgm data set
+        * \param[in] size - frame number
         * \param[in] cv::Mat - an image
-        * \param[in] Vector3f - rotation from groundtruth
-        * \param[in] Vector3f - translation from groundtruth
+        * \param[in] Vector4f - rotation (angle axis) from groundtruth
+        * \param[in] Vector4f - translation from groundtruth
         */
-      typedef void (cb_vgm) (const cv::Mat&, const Vector3f&, const Vector3f&);
+      typedef void (cb_vgm) ( const size_t,
+                              const cv::Mat&,
+                              const Vector4f&,
+                              const Vector4f&);
 
       //////////////////////////////////////////////////////
       //                  Methods
       //////////////////////////////////////////////////////
 
-      VgmGrabber (const char* const path)
-        : Grabber (initSupportedSigs (), initSupportedModes ())
-      {
-        parsePathAndName (path);
-        parseCamera (path_ + '/' + name_ + '/' + name_ + ".xcp");
-      }
+      VgmGrabber (const char* const path);
 
       const Camera<double>& getCamera () const { return cam_; }
 
@@ -78,6 +78,24 @@ namespace ht
       /** \brief The image capuring device */
       cv::VideoCapture vc_;
 
+      /** \brief The file handler responsible for reading the segments
+        * section of the grountruth data */
+      std::ifstream f_s_;
+
+      /** \brief The file handler responsible for reading the trajectories
+        * section of the grountruth data */
+      std::ifstream f_t_;
+
+      /** \brief Stores the stream position to start reading
+        * the segments from
+        */
+      size_t streampos_s_;
+
+      /** \brief Stores the stream position to start reading
+        * the trajecories from.
+        */
+      size_t streampos_t_;
+
       //////////////////////////////////////////////////////
       //                  Methods
       //////////////////////////////////////////////////////
@@ -85,9 +103,12 @@ namespace ht
       /** \brief Called when the all callbacks are to be notified of
         *  new data
         */
-      void cbVgm (const cv::Mat& frame,
-                  const Vector3f& rvec,
-                  const Vector3f& tvec) const;
+      void cbVgm (const size_t id,
+                  const cv::Mat& frame,
+                  const Vector4f& rvec,
+                  const Vector4f& tvec) const;
+
+      size_t findStreamPos (const char* const id) const;
 
       static std::set<Mode> initSupportedModes ();
 

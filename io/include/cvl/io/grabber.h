@@ -107,6 +107,9 @@ namespace ht
 
       /** \brief Used to lanch the async execution */
       std::thread thread_;
+
+      /** \brief Keeps track of the frame number being used */
+      size_t frame_nr_;
   };
 }
 
