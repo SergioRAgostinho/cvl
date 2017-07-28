@@ -15,4 +15,4 @@ if (BUILD_${TARGET_NAME})
 														"${PROJECT_NAME}_io"
 														${Matlab_LIBRARIES})
 	target_include_directories (${TARGET_NAME} PRIVATE ${Matlab_INCLUDE_DIRS})
-if (BUILD_${TARGET_NAME})
+endif (BUILD_${TARGET_NAME})

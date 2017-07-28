@@ -1,7 +1,7 @@
 /**
   * \author Sergio Agostinho - sergio.r.agostinho@gmail.com
   * \date created: 2017/05/09
-  * \date last modified: 2017/05/11
+  * \date last modified: 2017/07/18
   */
 #pragma once
 #ifndef CVL_COMMON_GEOMETRY_H_
@@ -32,6 +32,20 @@ namespace ht
     const Vector3<Scalar>& axis = aa.axis ();
     return Vector4<Scalar> (aa.angle (), axis[0], axis[1], axis[2]);
   }
+
+  /** \brief Constructs an angle axis vector from Euler angles
+    *
+    * \note The rotation resultant rotation has the following order
+    * R = Rx * Ry * Rz
+    * \param[in] rx - rotation angle along x (in radians)
+    * \param[in] ry - rotation angle along y (in radians)
+    * \param[in] rz - rotation angle along z (in radians)
+    * \return Returns an axis angle vector.
+    */
+  template<typename _Float>
+  Vector4<_Float> euler_2_angle_axis (const _Float rx,
+                                      const _Float ry,
+                                      const _Float rz);
 
   /** \brief Rotate a vector */
   template<typename _Derived>

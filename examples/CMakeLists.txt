@@ -12,6 +12,6 @@ set (BUILD_${MODULE_NAME} TRUE
 if (BUILD_${MODULE_NAME})
 	add_subdirectory (mat_file_io)
 	add_subdirectory (test)
-	# add_subdirectory (vgm_grabber)
+	add_subdirectory (vgm_grabber)
 	add_subdirectory (vgm_model)
 endif (BUILD_${MODULE_NAME})

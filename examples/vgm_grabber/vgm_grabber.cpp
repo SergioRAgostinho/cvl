@@ -71,9 +71,9 @@ main (const int argc, const char** const argv)
                     cv::WINDOW_NORMAL | cv::WINDOW_KEEPRATIO | cv::WINDOW_GUI_NORMAL);
   while (true)
   {
+    grabber.trigger ();
     if (!grabber.isRunning ())
       break;
-    grabber.trigger ();
 
     cv::imshow (window, frame_);
     const int key = cv::waitKey (1);

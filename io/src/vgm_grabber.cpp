@@ -4,6 +4,7 @@
   * \date last modified: 2017/05/09
   */
 #include <cvl/io/vgm_grabber.h>
+#include <cvl/io/utils.h>
 #include <cvl/common/geometry.h>
 #include <tinyxml2.h>
 #include <thread>
@@ -26,7 +27,7 @@ bool
 ht::VgmGrabber::start ()
 {
   // Open video capture
-  vc_.open (path_ + '/' + name_ + "/frames/%08d.jpg");
+  vc_.open (path_ + '/' + name_ + "/frames/%08d.jpg",  cv::CAP_IMAGES);
   if (!vc_.isOpened ())
   {
     std::cerr << "ERROR: Failed to open video capture device" << std::endl;
@@ -86,7 +87,7 @@ ht::VgmGrabber::trigger ()
     return;
 
   std::string str;
-  if (!std::getline (f_s_, str))
+  if (!getline_rn (f_s_, str))
   {
     running_ = false;
     return;
@@ -107,7 +108,6 @@ ht::VgmGrabber::trigger ()
   }
 
   Vector3f euler;
-  Vector4f rvec (0.f, 0.f, 0.f, 0.f);
   Vector4f tvec (0.f, 0.f, 0.f, 0.f);
   size_t id;
   sscanf (str.c_str (),
@@ -118,6 +118,7 @@ ht::VgmGrabber::trigger ()
 
 
   // notify
+  const Vector4f rvec = euler_2_angle_axis (euler[0], euler[1], euler[2]);
   cbVgm (id, frame.clone (), rvec, tvec);
 }
 
@@ -140,7 +141,7 @@ ht::VgmGrabber::findStreamPos (const char* const id) const
 {
   std::ifstream ifs (path_ + '/' + name_ + '/' + name_ + ".csv");
   std::string line;
-  while (std::getline (ifs, line))
+  while (getline_rn (ifs, line))
   {
     if (!line.compare (id))
     {
