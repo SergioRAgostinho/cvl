@@ -20,7 +20,8 @@ if (BUILD_${MODULE_NAME})
 	        "include/cvl/common/geometry.h")
 	set (impls
 	        "include/cvl/common/impl/geometry.hpp")
-	set (sources "src/function.cpp")
+	set (sources 	"src/function.cpp"
+								"src/mesh.cpp")
 
 	#target creation
 	add_library (${TARGET_NAME} ${sources})

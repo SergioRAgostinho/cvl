@@ -3,7 +3,7 @@
 # \data last modified: 2017/05/05
 
 # Project configurations
-cmake_minimum_required (VERSION 3.1)
+cmake_minimum_required (VERSION 3.7)
 project (cvl)
 
 
@@ -36,7 +36,7 @@ find_package (Eigen3 REQUIRED)
 find_package (OpenCV 3.0 REQUIRED)
 find_package (VTK REQUIRED)
 find_package (TinyXML2)
-find_package (Matlab)
+find_package (Matlab COMPONENTS MAT_LIBRARY MX_LIBRARY)
 find_package (GTest)
 
 # Recurse into subdirectories
