@@ -1,7 +1,7 @@
 /**
   * \author Sergio Agostinho - sergio.r.agostinho@gmail.com
   * \date created: 2017/05/09
-  * \date last modified: 2017/07/18
+  * \date last modified: 2017/08/01
   */
 #pragma once
 #ifndef CVL_COMMON_GEOMETRY_H_
@@ -11,6 +11,27 @@
 
 namespace ht
 {
+  /** \brief Compose to transformations specified by their rvec and
+    * tvec vectors
+    */
+  void compose (Vector4f& rout,
+                Vector4f& tout,
+                const Vector4f& rvec1,
+                const Vector4f& tvec1,
+                const Vector4f& rvec2,
+                const Vector4f& tvec2);
+
+  /** \brief Estimate the regid transformation from set of points A to B
+    * \param[out] rvec - angleaxis vector with the rotation between the two
+    * point sets
+    * \param[out] tvec - translation vector with between the two point sets
+    * \param[in] pts_b - set of points B, size Nx3
+    * \param[in] pts_a - set of points A, size Nx3
+    */
+  void rigid (Vector4f& rvec,
+              Vector4f& tvec,
+              const Matrix<float, Dynamic, 3, ColMajor>& pts_b,
+              const Matrix<float, Dynamic, 3, ColMajor>& pts_a);
 
   /** \brief Generates a Rodrigues representation from a quaternion */
   template<typename _Derived>
@@ -70,7 +91,7 @@ namespace ht
                     "Scalar types must be similar");
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(_Der_vec, 4);
     return Eigen::Transform<Scalar, 3, Eigen::Affine, Eigen::RowMajor> (
-              AngleAxis<Scalar> (aa[0], aa.tail(3)).toRotationMatrix ()
+              AngleAxis<Scalar> (aa[0], aa.tail (3)).toRotationMatrix ()
             ) * vec;
   }
 }

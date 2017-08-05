@@ -49,12 +49,12 @@ main (const int argc, const char** const argv)
         std::cout << ' ' << mxGetFieldNameByNumber (aPtr, j)
                   << " - " << mxGetClassName (field)
                   << " (" << dims[0];
-        for (int k = 1; k < size; ++k)
+        for (unsigned int k = 1; k < size; ++k)
           std::cout << 'x' << dims[k];
         std::cout << ')' << std::endl;
 
         const double* const data = (const double*) mxGetData (field);
-        for (int k = 0; k < dims[1]; ++k)
+        for (unsigned int k = 0; k < dims[1]; ++k)
           std::cout << ' ' << data[3*k]
                     << ' ' << data[3*k + 1]
                     << ' ' << data[3*k + 2]

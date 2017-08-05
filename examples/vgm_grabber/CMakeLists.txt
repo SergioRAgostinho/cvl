@@ -13,6 +13,7 @@ if (BUILD_${TARGET_NAME})
 	add_executable (${TARGET_NAME} "vgm_grabber.cpp")
 	target_link_libraries (${TARGET_NAME}
 														"${PROJECT_NAME}_io"
+														"${PROJECT_NAME}_visualization"
 														${Matlab_LIBRARIES})
 	target_include_directories (${TARGET_NAME} PRIVATE ${Matlab_INCLUDE_DIRS})
 endif (BUILD_${TARGET_NAME})

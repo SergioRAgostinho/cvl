@@ -11,12 +11,25 @@ project (cvl)
 set (CMAKE_CXX_STANDARD 14)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
-#warning settings 
-if (CMAKE_COMPILER_IS_GNUCC)
+#detect compiler
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  set(COMPILER_IS_CLANG TRUE)
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+  set(COMPILER_IS_APPLE_CLANG TRUE)
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  set(COMPILER_IS_GCC TRUE)
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+  set(COMPILER_IS_INTEL TRUE)
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+  set(COMPILER_IS_MSCV TRUE)
+endif()
+
+#warning settings
+if (COMPILER_IS_GCC OR COMPILER_IS_CLANG OR COMPILER_IS_APPLE_CLANG)
   set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Wextra")
-elseif (MSVC)
+elseif (COMPILER_IS_MSCV)
   set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /W4")
-endif (CMAKE_COMPILER_IS_GNUCC)
+endif (COMPILER_IS_GCC OR COMPILER_IS_CLANG OR COMPILER_IS_APPLE_CLANG)
 
 # global setting
 set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -43,7 +56,7 @@ find_package (GTest)
 # Lib
 add_subdirectory (common)
 add_subdirectory (io)
-# add_subdirectory (visualization)
+add_subdirectory (visualization)
 # execs
 add_subdirectory (examples)
 

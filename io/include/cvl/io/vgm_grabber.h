@@ -26,15 +26,24 @@ namespace ht
       //////////////////////////////////////////////////////
 
       /** \brief Signature for the callback function of the vgm data set
-        * \param[in] size - frame number
+        * \param[in] size_t - frame number
         * \param[in] cv::Mat - an image
         * \param[in] Vector4f - rotation (angle axis) from groundtruth
         * \param[in] Vector4f - translation from groundtruth
         */
-      typedef void (cb_vgm) ( const size_t,
-                              const cv::Mat&,
-                              const Vector4f&,
-                              const Vector4f&);
+      typedef void (cb_vgm_img_motion) (const size_t,
+                                        const cv::Mat&,
+                                        const Vector4f&,
+                                        const Vector4f&);
+
+      /** \brief Callback signature which returns the reference points
+        * trajectories in world coordinates
+        * \param[in] size_t - the frame number
+        * \param[in] Matrix<float, 3, Dynamic, ColMajor>& - a matrix with the
+        * the reference points coordinates
+        */
+      typedef void (cb_vgm_ref_points) (const size_t,
+                                        const Matrix<float, 3, Dynamic, ColMajor>&);
 
       //////////////////////////////////////////////////////
       //                  Methods
@@ -44,6 +53,9 @@ namespace ht
 
       const Camera<double>& getCamera () const { return cam_; }
 
+      const Matrix<float, 3, Dynamic, ColMajor>&
+      getReferencePoints () const { return refs_; }
+
       bool start () override;
 
       void stop () override;
@@ -52,6 +64,17 @@ namespace ht
       void trigger ();
       
     protected:
+
+      //////////////////////////////////////////////////////
+      //                  Types
+      //////////////////////////////////////////////////////
+
+      enum CbFlags
+      {
+        HAS_IMAGE = 0b1u,
+        HAS_SEGMENTS = 0b10u,
+        HAS_TRAJECTORIES = 0b100u
+      };
 
       //////////////////////////////////////////////////////
       //                  Members
@@ -96,19 +119,50 @@ namespace ht
         */
       size_t streampos_t_;
 
+      /** \brief Stores the reference points coords. It's a dynamic
+        * size matrix so it doesn't require the Eigen new operator
+        * overload
+        */
+      Matrix<float, 3, Dynamic, ColMajor> refs_;
+
+      /** \brief Callback bit flag used to determine which types
+        * of data fetching are required
+        */
+      uint8_t cb_flags_;
+
       //////////////////////////////////////////////////////
       //                  Methods
       //////////////////////////////////////////////////////
 
       /** \brief Called when the all callbacks are to be notified of
         *  new data
+        * \param[in] id - the data frame number
+        * \param[in] frame - an image frame
+        * \param[in] rvec - angleaxis rotation of the object in the
+        * VICON reference frame
+        * \param[in] tvec - translation of the obj in the VICON
+        * reference frame.
         */
-      void cbVgm (const size_t id,
-                  const cv::Mat& frame,
-                  const Vector4f& rvec,
-                  const Vector4f& tvec) const;
+      void cbVgmImgMotion ( const size_t id,
+                            const cv::Mat& frame,
+                            const Vector4f& rvec,
+                            const Vector4f& tvec) const;
+
+      /** \brief A callback returning the reference points trajectory
+        *  on each frame
+        * \param[in] id - the data frame serial identifier
+        * \param[in] pts - the reference points trajectory coordinates
+        * in the VICON reference frame.
+        */
+      void cbVgmRefPoints ( const size_t id,
+                            const Matrix<float, 3, Dynamic, ColMajor>& pts) const;
 
       size_t findStreamPos (const char* const id) const;
+
+      /** \brief Initializes the callbacks flags based on the
+        * registered signatures
+        */
+      void initCbFlags ();
 
       static std::set<Mode> initSupportedModes ();
 
@@ -116,6 +170,9 @@ namespace ht
 
       /** \brief Parse camera information */
       bool parseCamera (const std::string& path);
+
+      /** \brief Parses the provided configuration file. */
+      void parseConfigurationFile ();
 
       /** \brief Responsible for stripping the provided path from any
         * trailling forward slashes and infer the name of the data set
@@ -126,6 +183,20 @@ namespace ht
         * data from the data source
         */
       void run ();
+
+    private:
+
+      /** \brief Extracts the sequence origin from a string
+        * \param[in] data - the data string
+        */
+      void parseOriginPoint (const std::string& data);
+
+      /** \brief Extracts the reference points from a string
+        * \param[in] data - the data string
+        */
+      void parseReferencePoints (const std::string& data);
+
+
   };
 }
 
