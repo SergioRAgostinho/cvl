@@ -1,29 +1,63 @@
 /**
   * \author Sergio Agostinho - sergio.r.agostinho@gmail.com
   * \date created: 2017/07/27
-  * \date last modified: 2017/07/27
+  * \date last modified: 2017/08/07
   */
 #include <cvl/common/mesh.h>
-// #include <pair>
 #include <set>
+#include <map>
 #include <cassert>
 
-ht::EdgeMesh::EdgeMesh (const ht::TriMesh& tri)
+////////////////////////////////////
+//            TriMesh
+////////////////////////////////////
+
+ht::Vector3f
+ht::TriMesh::faceNormal (const size_t idx) const
+{
+  const Eigen::Map<const Vector3f> p0 (&v[3*f[idx]]);
+  const Eigen::Map<const Vector3f> p1 (&v[3*f[idx + 1]]);
+  const Eigen::Map<const Vector3f> p2 (&v[3*f[idx + 2]]);
+
+  Vector3f normal = (p1 - p0).cross (p2 - p1);
+  normal.normalize ();
+  return normal;
+}
+
+////////////////////////////////////
+//            EdgeMesh
+////////////////////////////////////
+
+ht::EdgeMesh::EdgeMesh (const ht::TriMesh& tri,
+                        const float filter_angle)
   : v (tri.v)
 {
   const std::vector<size_t>& f = tri.f;
 
+  assert (filter_angle >= 0.f);
   assert (!(f.size () % 3));
-  std::set<std::pair<size_t, size_t>> edges;
+  std::map<std::pair<size_t, size_t>,std::vector<size_t>> edges;
 
-  // Populate the set
+  // Populate the map
   for (size_t i = 0; i < f.size (); i += 3)
   {
     for (size_t j = 0; j < 3; ++j)
     {
-      const size_t min = std::min (f[i + (j % 3)], f[i + ((j + 1) % 3)]) - 1;
-      const size_t max = std::max (f[i + (j % 3)], f[i + ((j + 1) % 3)]) - 1;
-      edges.emplace (min, max);
+      const size_t min = std::min (f[i + (j % 3)], f[i + ((j + 1) % 3)]);
+      const size_t max = std::max (f[i + (j % 3)], f[i + ((j + 1) % 3)]);
+      const std::pair<size_t, size_t> key (min, max);
+      std::vector<size_t>& faces = edges[key];
+      faces.push_back (i);
+
+      // Check if needs to filtered
+      if (filter_angle == 1.f || faces.size () < 2)
+        continue;
+
+      //Filter
+      const Vector3f v0 = tri.faceNormal (faces[0]);
+      const Vector3f v1 = tri.faceNormal (faces[1]);
+      if (std::abs (v0.dot (v1)) > filter_angle)
+        edges.erase (key);
     }
   }
 
@@ -32,8 +66,8 @@ ht::EdgeMesh::EdgeMesh (const ht::TriMesh& tri)
   size_t i = 0;
   for (const auto& edge : edges)
   {
-    e[i++] = edge.first;
-    e[i++] = edge.second;
+    e[i++] = edge.first.first;
+    e[i++] = edge.first.second;
   }
 }
 
@@ -41,6 +75,15 @@ ht::EdgeMesh&
 ht::EdgeMesh::operator= (const ht::TriMesh& tri)
 {
   EdgeMesh m (tri);
+  std::swap (*this, m);
+  return *this;
+}
+
+ht::EdgeMesh&
+ht::EdgeMesh::filter (const ht::TriMesh& tri,
+                      const float filter_angle)
+{
+  EdgeMesh m (tri, filter_angle);
   std::swap (*this, m);
   return *this;
 }

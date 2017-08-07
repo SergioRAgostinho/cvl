@@ -21,7 +21,7 @@ ht::vgm_model_reader (ht::TriMesh& mesh, const char* const path)
   mxArray* const model = matGetVariable (file, "model");
   if (!model)
   {
-    std::cerr << '[' << __func__ << "] Could not model inside mat file"
+    std::cerr << '[' << __func__ << "] Could find not model inside mat file"
               << std::endl;
     matClose (file);
     return false;
@@ -52,7 +52,8 @@ ht::vgm_model_reader (ht::TriMesh& mesh, const char* const path)
 
   // Perform copy
   std::copy (data_v, data_v + s_v, mesh.v.begin ());
-  std::copy (data_f, data_f + s_f, mesh.f.begin ());
+  for (size_t i = 0; i < s_f; ++i)
+    mesh.f[i] = size_t(data_f[i]) - 1u;
 
   mxDestroyArray (model);
   matClose (file);

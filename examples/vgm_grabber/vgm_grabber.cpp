@@ -68,7 +68,7 @@ load_model (ht::EdgeMesh& edge, const char* const path)
     return false;
   }
 
-  edge = mesh;
+  edge.filter (mesh, .8f);
   std::cout << "Model Info:\n" << edge << std::endl;
   return true;
 }
