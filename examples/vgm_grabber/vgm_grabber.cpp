@@ -20,10 +20,9 @@ using ht::Camera;
 static cv::Mat frame_;
 static Vector4f rvec_;
 static Vector4f tvec_;
-static ht::Matrix<float, 3, ht::Dynamic, ht::ColMajor> pts_;
 
 void
-cb_img_motion ( size_t n,
+cb_img_motion ( size_t,
                 const cv::Mat& img,
                 const Vector4f& rvec,
                 const Vector4f& tvec)
@@ -31,18 +30,6 @@ cb_img_motion ( size_t n,
   frame_ = img;
   rvec_ = rvec;
   tvec_ = tvec;
-  std::cout << "n: " << n
-            << " rvec: " << rvec.transpose ()
-            << " tvec: " << tvec.transpose ()
-            << std::endl;
-}
-
-void
-cb_ref_points ( size_t,
-                const ht::Matrix<float, 3, ht::Dynamic, ht::ColMajor>& pts)
-{
-  std::cout << "Ref Trajectories:\n" << pts << std::endl;
-  pts_ = pts;
 }
 
 std::string
@@ -127,15 +114,6 @@ main (const int argc, const char** const argv)
     return -1;
   }
 
-  const std::function<VgmGrabber::cb_vgm_ref_points> f_ref_points = std::bind ( cb_ref_points,
-                                                                                std::placeholders::_1,
-                                                                                std::placeholders::_2);
-  if (!grabber.registerCb (f_ref_points))
-  {
-    std::cerr << "Failed to register the ref points trajectory callback" << std::endl;
-    return -1;
-  }
-
   // Set mode to trigger
   grabber.setMode (ht::Grabber::Mode::TRIGGER);
   if (!grabber.start ())
@@ -154,34 +132,14 @@ main (const int argc, const char** const argv)
     if (!grabber.isRunning ())
       break;
 
-    // Vector4f rvec, tvec;
-    // ht::compose ( rvec,
-    //               tvec,
-    //               cam.rvec.cast<float> (),
-    //               cam.tvec.cast<float> (),
-    //               Vector4f (0,0,0,1),
-    //               Vector4f (0,0,0,0));
-    //               // rvec_, tvec_);
-    std::cout << "rvec: " << rvec_.transpose ()
-              << "\ntvec: " << tvec_.transpose () << std::endl;
+    // std::cout << "rvec: " << rvec_.transpose ()
+    //           << "\ntvec: " << tvec_.transpose () << std::endl;
     ht::draw (frame_, mesh, cam.k.topRows<3> ().cast<float> (), rvec_, tvec_);
-    // ht::draw (frame_,
-    //           mesh,
-    //           cam.k.topRows<3> ().cast<float> (),
-    //           Vector4f (0,0,0,1),
-    //           Vector4f (0,0,1500,0));
+
     cv::imshow (window, frame_);
     const int key = cv::waitKey (1);
     if (key == 27) //esc
       break;
-
-    // ht::rigid ( rvec,
-    //             tvec,
-    //             pts_.transpose (),
-    //             grabber.getReferencePoints ().transpose ());
-    // std::cout << "rvec: " << rvec.transpose ()
-    //           << "\ntvec: " << tvec.transpose () << std::endl;
-    // break;
   }
   return 0;
 }

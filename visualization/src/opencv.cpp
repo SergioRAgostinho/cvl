@@ -17,7 +17,6 @@ ht::draw (cv::Mat& img,
   const size_t s_v = mesh.v.size () / 3;
 
   const Eigen::Map<const Matrix<float, 3, Dynamic, ColMajor>> mesh_p (mesh.v.data (), 3, s_v);
-  // const Matrix<float, 3, Dynamic, ColMajor> mesh_p  = Matrix<float, 3, Dynamic, ColMajor>::Random (3, s_v);
   const Matrix3f rot (AngleAxisf (rvec[0], rvec.tail<3> ()));
 
   const Array<float, 3, Dynamic, ColMajor> pts = k * ((rot * mesh_p).colwise () + tvec.head<3> ());

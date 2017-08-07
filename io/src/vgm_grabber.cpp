@@ -6,7 +6,6 @@
 #include <cvl/io/vgm_grabber.h>
 #include <cvl/io/utils.h>
 #include <cvl/common/geometry.h>
-// #include <cvl/common/eigen.h>
 #include <tinyxml2.h>
 #include <thread>
 #include <iostream>
@@ -21,8 +20,7 @@ ht::VgmGrabber::VgmGrabber (const char* const path)
   parsePathAndName (path);
   parseCamera (path_ + '/' + name_ + '/' + name_ + ".xcp");
   parseConfigurationFile ();
-  streampos_s_ = findStreamPos ("Segments");
-  streampos_t_ = findStreamPos ("Trajectories");
+  streampos_ = findStreamPos ("Trajectories");
 }
 
 bool
@@ -42,30 +40,17 @@ ht::VgmGrabber::start ()
     }
   }
 
-  // Open text file and seek till after que provided sequence
-  if (cb_flags_ & HAS_SEGMENTS)
-  {
-    f_s_.open (path_ + '/' + name_ + '/' + name_ + ".csv");
-    if (!f_s_.is_open ())
-    {
-      std::cerr << "ERROR: Failed to open groudtruth file" << std::endl;
-      stop ();
-      return false;
-    }
-    f_s_.seekg (streampos_s_);
-  }
-
   // Open text file and seek till after que provided trajectories
-  if (cb_flags_ & HAS_TRAJECTORIES)
+  if (cb_flags_ & HAS_MOTION)
   {
-    f_t_.open (path_ + '/' + name_ + '/' + name_ + ".csv");
-    if (!f_t_.is_open ())
+    f_.open (path_ + '/' + name_ + '/' + name_ + ".csv");
+    if (!f_.is_open ())
     {
       std::cerr << "ERROR: Failed to open groudtruth file" << std::endl;
       stop ();
       return false;
     }
-    f_t_.seekg (streampos_t_);
+    f_.seekg (streampos_);
   }
 
   // launch async thread if mode requires
@@ -87,11 +72,8 @@ ht::VgmGrabber::stop ()
   if (vc_.isOpened ())
     vc_.release ();
 
-  if (f_s_.is_open ())
-    f_s_.close ();
-
-  if (f_t_.is_open ())
-    f_t_.close ();
+  if (f_.is_open ())
+    f_.close ();
 }
 
 void
@@ -100,19 +82,12 @@ ht::VgmGrabber::trigger ()
   if (!running_)
     return;
 
-  const bool has_segments = cb_flags_ & HAS_SEGMENTS;
   const bool has_image = cb_flags_ & HAS_IMAGE;
-  const bool has_trajectories = cb_flags_ & HAS_TRAJECTORIES;
+  const bool has_motion = cb_flags_ & HAS_MOTION;
 
-  std::string s_str, t_str;
+  std::string str;
 
-  if (has_segments && !getline_rn (f_s_, s_str))
-  {
-    running_ = false;
-    return;
-  }
-
-  if (has_trajectories && !getline_rn (f_t_, t_str))
+  if (has_motion && !getline_rn (f_, str))
   {
     running_ = false;
     return;
@@ -120,7 +95,7 @@ ht::VgmGrabber::trigger ()
 
   // ignore data from every odd iteration if pulling data
   // from images which also segments/trajectories
-  if (has_image && (has_segments || has_trajectories) && (frame_nr_++ % 2))
+  if (has_image && has_motion && (frame_nr_++ % 2))
     return;
 
   cv::Mat frame;
@@ -136,21 +111,13 @@ ht::VgmGrabber::trigger ()
     }
   }
 
-  Vector3f euler;
   Vector4f tvec (0.f, 0.f, 0.f, 0.f);
   Vector4f rvec (0.f, 0.f, 0.f, 1.f);
   size_t id = frame_nr_;
   Matrix<float, 3, Dynamic, ColMajor> markers (3, refs_.cols ());
 
-  if (has_segments)
-    sscanf (s_str.c_str (),
-            "%lu,%*u,%f,%f,%f,%f,%f,%f",
-            &id,
-            &euler[0], &euler[1], &euler[2],
-            &tvec[0], &tvec[1], &tvec[2]);
-
-  if (has_trajectories)
-    sscanf (t_str.c_str (),
+  if (has_motion)
+    sscanf (str.c_str (),
             "%lu,%*u,"
             "%f,%f,%f,%f,%f,%f,"
             "%f,%f,%f,%f,%f,%f,"
@@ -167,20 +134,36 @@ ht::VgmGrabber::trigger ()
             &markers (0,7), &markers (1,7), &markers (2,7));
 
   // notify
-  // rvec = euler_2_angle_axis (euler[0], euler[1], euler[2]);
   rigid (rvec, tvec, markers.transpose (), refs_.transpose ());
-  compose (rvec, tvec,
+  compose ( rvec, tvec,
             cam_.rvec.cast<float> (), cam_.tvec.cast<float> (),
             rvec, tvec);
-  // rvec = cam_.rvec.cast<float> ();
-  // tvec = cam_.tvec.cast<float> ();
-  cbVgmImgMotion (id, frame.clone (), rvec, tvec);
-  cbVgmRefPoints (id, markers);
+  const cv::Mat img = frame.clone ();
+  cbVgmImg (id, img);
+  cbVgmMotion (id, rvec, tvec);
+  cbVgmImgMotion (id, img, rvec, tvec);
 }
 
 ///////////////////////////////////////////////
 //                  Protected
 ///////////////////////////////////////////////
+
+void
+ht::VgmGrabber::cbVgmImg (const size_t id,
+                          const cv::Mat& frame) const
+{
+  for (const FunctionBase* const f : registered_cbs_.at (typeid (cb_vgm_img).name ()))
+    (*static_cast<const Function<cb_vgm_img>*> (f)) (id, frame);
+}
+
+void
+ht::VgmGrabber::cbVgmMotion ( const size_t id,
+                              const Vector4f& rvec,
+                              const Vector4f& tvec) const
+{
+  for (const FunctionBase* const f : registered_cbs_.at (typeid (cb_vgm_motion).name ()))
+    (*static_cast<const Function<cb_vgm_motion>*> (f)) (id, rvec, tvec);
+}
 
 void
 ht::VgmGrabber::cbVgmImgMotion (const size_t id,
@@ -190,14 +173,6 @@ ht::VgmGrabber::cbVgmImgMotion (const size_t id,
 {
   for (const FunctionBase* const f : registered_cbs_.at (typeid (cb_vgm_img_motion).name ()))
     (*static_cast<const Function<cb_vgm_img_motion>*> (f)) (id, frame, rvec, tvec);
-}
-
-void
-ht::VgmGrabber::cbVgmRefPoints (const size_t id,
-                                const Matrix<float, 3, Dynamic, ColMajor>& pts) const
-{
-  for (const FunctionBase* const f : registered_cbs_.at (typeid (cb_vgm_ref_points).name ()))
-    (*static_cast<const Function<cb_vgm_ref_points>*> (f)) (id, pts);
 }
 
 size_t
@@ -225,11 +200,14 @@ ht::VgmGrabber::initCbFlags ()
 {
   cb_flags_ = 0u;
 
-  if (!registered_cbs_[typeid (cb_vgm_img_motion).name ()].empty ())
-    cb_flags_ |= (HAS_IMAGE | HAS_SEGMENTS);
+  if (!registered_cbs_[typeid (cb_vgm_img).name ()].empty ())
+    cb_flags_ |= HAS_IMAGE;
 
-  if (!registered_cbs_[typeid (cb_vgm_ref_points).name ()].empty ())
-    cb_flags_ |= (HAS_TRAJECTORIES);
+  if (!registered_cbs_[typeid (cb_vgm_motion).name ()].empty ())
+    cb_flags_ |= HAS_MOTION;
+
+  if (!registered_cbs_[typeid (cb_vgm_img_motion).name ()].empty ())
+    cb_flags_ |= (HAS_IMAGE | HAS_MOTION);
 }
 
 std::set<ht::Grabber::Mode>
@@ -242,9 +220,15 @@ ht::VgmGrabber::initSupportedModes ()
 std::set<const char*>
 ht::VgmGrabber::initSupportedSigs ()
 {
+  static const char* const cb_vgm_img_type = typeid (cb_vgm_img).name ();
+  static const char* const cb_vgm_motion_type = typeid (cb_vgm_motion).name ();
   static const char* const cb_vgm_img_motion_type = typeid (cb_vgm_img_motion).name ();
-  static const char* const cb_vgm_ref_points_type = typeid (cb_vgm_ref_points).name ();
-  static const std::set<const char*> s { cb_vgm_img_motion_type, cb_vgm_ref_points_type };
+  static const std::set<const char*> s
+  {
+    cb_vgm_img_type,
+    cb_vgm_motion_type,
+    cb_vgm_img_motion_type
+  };
   return s; //copy elision
 }
 
@@ -319,8 +303,6 @@ ht::VgmGrabber::parseCamera (const std::string& path)
   
   // Perform final conversion to storage world to camera
   cam_.rvec = angle_axis (q);
-  // cam_.tvec = t;
-  // cam_.rvec[0] *= -1;
   cam_.tvec = -rotate4 (cam_.rvec, t);
   return true;
 }

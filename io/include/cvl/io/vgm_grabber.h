@@ -25,6 +25,22 @@ namespace ht
       //                  Types
       //////////////////////////////////////////////////////
 
+      /** \brief Signature for the callback function for image
+        * \param[in] size_t - frame number
+        * \param[in] cv::Mat - an image
+        */
+      typedef void (cb_vgm_img) ( const size_t,
+                                  const cv::Mat&);
+
+      /** \brief Signature for the callback function for image
+        * \param[in] size_t - frame number
+        * \param[in] Vector4f - rotation (angle axis) from groundtruth
+        * \param[in] Vector4f - translation from groundtruth
+        */
+      typedef void (cb_vgm_motion) (const size_t,
+                                    const Vector4f&,
+                                    const Vector4f&);
+
       /** \brief Signature for the callback function of the vgm data set
         * \param[in] size_t - frame number
         * \param[in] cv::Mat - an image
@@ -35,15 +51,6 @@ namespace ht
                                         const cv::Mat&,
                                         const Vector4f&,
                                         const Vector4f&);
-
-      /** \brief Callback signature which returns the reference points
-        * trajectories in world coordinates
-        * \param[in] size_t - the frame number
-        * \param[in] Matrix<float, 3, Dynamic, ColMajor>& - a matrix with the
-        * the reference points coordinates
-        */
-      typedef void (cb_vgm_ref_points) (const size_t,
-                                        const Matrix<float, 3, Dynamic, ColMajor>&);
 
       //////////////////////////////////////////////////////
       //                  Methods
@@ -72,8 +79,7 @@ namespace ht
       enum CbFlags
       {
         HAS_IMAGE = 0b1u,
-        HAS_SEGMENTS = 0b10u,
-        HAS_TRAJECTORIES = 0b100u
+        HAS_MOTION = 0b10u
       };
 
       //////////////////////////////////////////////////////
@@ -81,7 +87,7 @@ namespace ht
       //////////////////////////////////////////////////////
 
       /** \brief Store the root folder path for the data set
-        * \note Assumes the data set naming conventions were follwed
+        * \note Assumes the data set naming conventions were followed
         */
       std::string path_;
 
@@ -98,26 +104,17 @@ namespace ht
         */
       Camera<double> cam_;
 
-      /** \brief The image capuring device */
+      /** \brief The image capturing device */
       cv::VideoCapture vc_;
-
-      /** \brief The file handler responsible for reading the segments
-        * section of the grountruth data */
-      std::ifstream f_s_;
 
       /** \brief The file handler responsible for reading the trajectories
         * section of the grountruth data */
-      std::ifstream f_t_;
+      std::ifstream f_;
 
       /** \brief Stores the stream position to start reading
-        * the segments from
+        * the trajectories from.
         */
-      size_t streampos_s_;
-
-      /** \brief Stores the stream position to start reading
-        * the trajecories from.
-        */
-      size_t streampos_t_;
+      size_t streampos_;
 
       /** \brief Stores the reference points coords. It's a dynamic
         * size matrix so it doesn't require the Eigen new operator
@@ -133,6 +130,26 @@ namespace ht
       //////////////////////////////////////////////////////
       //                  Methods
       //////////////////////////////////////////////////////
+
+      /** \brief Called when the all callbacks are to be notified of
+        *  new data
+        * \param[in] id - the data frame number
+        * \param[in] frame - an image frame
+        */
+      void cbVgmImg ( const size_t id,
+                      const cv::Mat& frame) const;
+
+      /** \brief Called when the all callbacks are to be notified of
+        *  new data
+        * \param[in] id - the data frame number
+        * \param[in] rvec - angleaxis rotation of the object in the
+        * VICON reference frame
+        * \param[in] tvec - translation of the obj in the VICON
+        * reference frame.
+        */
+      void cbVgmMotion (const size_t id,
+                        const Vector4f& rvec,
+                        const Vector4f& tvec) const;
 
       /** \brief Called when the all callbacks are to be notified of
         *  new data
@@ -154,9 +171,12 @@ namespace ht
         * \param[in] pts - the reference points trajectory coordinates
         * in the VICON reference frame.
         */
-      void cbVgmRefPoints ( const size_t id,
-                            const Matrix<float, 3, Dynamic, ColMajor>& pts) const;
+      // void cbVgmRefPoints ( const size_t id,
+      //                       const Matrix<float, 3, Dynamic, ColMajor>& pts) const;
 
+      /** \brief Find the stream position to initialize the gt parsing
+        * \param[in] id - string to find
+        */
       size_t findStreamPos (const char* const id) const;
 
       /** \brief Initializes the callbacks flags based on the
@@ -164,18 +184,28 @@ namespace ht
         */
       void initCbFlags ();
 
+      /** \brief Initialized the supported modes on the base class
+        * \return Returns the supported modes.
+        */
       static std::set<Mode> initSupportedModes ();
 
+      /** \brief Initialized the supported callback signatures
+        * \return Returns the supported callback signatures.
+        */
       static std::set<const char*> initSupportedSigs ();
 
-      /** \brief Parse camera information */
+      /** \brief Parse camera information
+        * \param[in] path - file path to the camera file
+        * \return Returns true if parsing is processed successfully, false
+        * otherwise
+        */
       bool parseCamera (const std::string& path);
 
-      /** \brief Parses the provided configuration file. */
+      /** \brief Parses the provided configuration file */
       void parseConfigurationFile ();
 
       /** \brief Responsible for stripping the provided path from any
-        * trailling forward slashes and infer the name of the data set
+        * trailing forward slashes and infer the name of the data set
         */
       void parsePathAndName (const std::string& path);
 
