@@ -1,7 +1,7 @@
 /**
   * \author Sergio Agostinho - sergio.r.agostinho@gmail.com
   * \date created: 2017/05/05
-  * \date last modified: 2017/05/05
+  * \date last modified: 2017/08/07
   */
 #include <cvl/visualization/opencv.h>
 #include <cvl/io/vgm_grabber.h>

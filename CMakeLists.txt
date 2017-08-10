@@ -44,10 +44,12 @@ include ("cmake/macros.cmake")
 include ("cmake/functions.cmake")
 
 #check for dependencies
+find_package (PkgConfig)
 find_package (Threads REQUIRED)
 find_package (Eigen3 REQUIRED)
 find_package (OpenCV 3.0 REQUIRED)
 find_package (VTK REQUIRED)
+find_package (nanoflann)
 find_package (TinyXML2)
 find_package (Matlab COMPONENTS MAT_LIBRARY MX_LIBRARY)
 find_package (GTest)
@@ -56,6 +58,7 @@ find_package (GTest)
 # Lib
 add_subdirectory (common)
 add_subdirectory (io)
+add_subdirectory (search)
 add_subdirectory (visualization)
 # execs
 add_subdirectory (examples)

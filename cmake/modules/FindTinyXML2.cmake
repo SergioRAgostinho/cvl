@@ -12,8 +12,6 @@
 #
 
 # piggyback on pkgconfif for now
-find_package (PkgConfig)
-
 if (PKG_CONFIG_FOUND)
   pkg_check_modules(TinyXML2 tinyxml2)
 endif (PKG_CONFIG_FOUND)

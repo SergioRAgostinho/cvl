@@ -22,19 +22,24 @@ namespace ht
   template<typename _Scalar, int _Rows, int _Cols, int _Options = RowMajor>
   using Matrix = Eigen::Matrix<_Scalar, _Rows, _Cols, _Options>;
 
-  template<typename _Scalar>
-  using Matrix3 = Matrix<_Scalar, 3, 3>;
+  template<typename _Scalar, int _Options = RowMajor>
+  using MatrixX = Matrix<_Scalar, Dynamic, Dynamic, _Options>;
 
-  template<typename _Scalar>
-  using Matrix4 = Matrix<_Scalar, 4, 4>;
+  typedef MatrixX<float> MatrixXf;
+
+  template<typename _Scalar, int _Options = RowMajor>
+  using Matrix3 = Matrix<_Scalar, 3, 3, _Options>;
+
+  template<typename _Scalar, int _Options = RowMajor>
+  using Matrix4 = Matrix<_Scalar, 4, 4, _Options>;
 
   typedef Matrix3<float> Matrix3f;
   typedef Matrix3<double> Matrix3d;
   typedef Matrix4<float> Matrix4f;
   typedef Matrix4<double> Matrix4d;
 
-  template<typename _Scalar>
-  using Matrix43 = Matrix<_Scalar, 4, 3>;
+  template<typename _Scalar, int _Options = RowMajor>
+  using Matrix43 = Matrix<_Scalar, 4, 3, _Options>;
 
   typedef Matrix43<double> Matrix43d;
 
