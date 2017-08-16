@@ -3,6 +3,7 @@
   * \date created: 2017/05/05
   * \date last modified: 2017/08/07
   */
+#include <cvl/filter/duplicate.h>
 #include <cvl/visualization/opencv.h>
 #include <cvl/io/vgm_grabber.h>
 #include <cvl/io/vgm_model_reader.h>
@@ -68,7 +69,13 @@ load_model (ht::EdgeMesh& edge, const char* const path)
     return false;
   }
 
-  edge.filter (mesh, .8f);
+  // //Filter duplicate vertices (still buggy)
+  // ht::DuplicateVertexRemoval<ht::TriMesh> f (0.05f);
+  // f.setInput (std::make_shared<ht::TriMesh> (mesh));
+  // mesh = f.filter ();
+
+  // Create edge model
+  edge.filter (mesh, .9f);
   std::cout << "Model Info:\n" << edge << std::endl;
   return true;
 }
@@ -76,6 +83,9 @@ load_model (ht::EdgeMesh& edge, const char* const path)
 int
 main (const int argc, const char** const argv)
 {
+  // float v[4];
+  // Eigen::Map<ht::Vector4f> m(v);
+  // m = Vector4f (0, 1, 2, 3);
   // check if path to root folder was provided
   if (argc < 2)
   {

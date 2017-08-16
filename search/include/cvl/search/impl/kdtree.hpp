@@ -16,7 +16,8 @@ ht::KDTree<_EigenMatrix>::KDTree (const int leaf_max_size)
 template<typename _EigenMatrix> void
 ht::KDTree<_EigenMatrix>::generateTreeIndex ()
 {
-  tree_ = std::make_unique<Tree> (input_->cols (),
+  // tree_ = std::make_unique<Tree> (input_->cols (),
+  tree_ = std::make_unique<Tree> (
                                   *input_,
                                   leaf_max_size_);
   tree_->index->buildIndex ();

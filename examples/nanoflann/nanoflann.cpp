@@ -28,7 +28,8 @@ main ()
   Eigen::Map<MatrixXf> map (pts, 4, 3);
 
   //Generate tree index
-  KDTree tree (3, map, 10);
+  // KDTree tree (3, map, 10);
+  KDTree tree (map, 10);
   tree.index->buildIndex ();
 
   // Prepare a Knn search

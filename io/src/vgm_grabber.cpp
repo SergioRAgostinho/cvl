@@ -114,34 +114,57 @@ ht::VgmGrabber::trigger ()
   Vector4f tvec (0.f, 0.f, 0.f, 0.f);
   Vector4f rvec (0.f, 0.f, 0.f, 1.f);
   size_t id = frame_nr_;
-  Matrix<float, 3, Dynamic, ColMajor> markers (3, refs_.cols ());
+  const size_t cols = refs_.cols ();
+  Matrix<float, 3, Dynamic, ColMajor> markers (3, cols);
 
+  // Only screw data set uses different number of markers
+  // it's not worth to penalize data parsing speed and make
+  // it generic for any number of markers just for one size
+  // Only 'screw'  "screws" with the convetion ba dum txx
   if (has_motion)
-    sscanf (str.c_str (),
-            "%lu,%*u,"
-            "%f,%f,%f,%f,%f,%f,"
-            "%f,%f,%f,%f,%f,%f,"
-            "%f,%f,%f,%f,%f,%f,"
-            "%f,%f,%f,%f,%f,%f",
-            &id,
-            &markers (0,0), &markers (1,0), &markers (2,0),
-            &markers (0,1), &markers (1,1), &markers (2,1),
-            &markers (0,2), &markers (1,2), &markers (2,2),
-            &markers (0,3), &markers (1,3), &markers (2,3),
-            &markers (0,4), &markers (1,4), &markers (2,4),
-            &markers (0,5), &markers (1,5), &markers (2,5),
-            &markers (0,6), &markers (1,6), &markers (2,6),
-            &markers (0,7), &markers (1,7), &markers (2,7));
+  {
+    if (cols == 8)
+      sscanf (str.c_str (),
+              "%lu,%*u,"
+              "%f,%f,%f,%f,%f,%f,"
+              "%f,%f,%f,%f,%f,%f,"
+              "%f,%f,%f,%f,%f,%f,"
+              "%f,%f,%f,%f,%f,%f",
+              &id,
+              &markers (0,0), &markers (1,0), &markers (2,0),
+              &markers (0,1), &markers (1,1), &markers (2,1),
+              &markers (0,2), &markers (1,2), &markers (2,2),
+              &markers (0,3), &markers (1,3), &markers (2,3),
+              &markers (0,4), &markers (1,4), &markers (2,4),
+              &markers (0,5), &markers (1,5), &markers (2,5),
+              &markers (0,6), &markers (1,6), &markers (2,6),
+              &markers (0,7), &markers (1,7), &markers (2,7));
+    else if (cols == 3)
+      sscanf (str.c_str (),
+              "%lu,%*u,"
+              "%f,%f,%f,%f,%f,%f,%f,%f,%f",
+              &id,
+              &markers (0,0), &markers (1,0), &markers (2,0),
+              &markers (0,1), &markers (1,1), &markers (2,1),
+              &markers (0,2), &markers (1,2), &markers (2,2));
+  }
+
 
   // notify
-  rigid (rvec, tvec, markers.transpose (), refs_.transpose ());
-  compose ( rvec, tvec,
-            cam_.rvec.cast<float> (), cam_.tvec.cast<float> (),
-            rvec, tvec);
+  // rigid (rvec, tvec, markers.transpose (), refs_.transpose ());
+  Posef pose = rigid (markers.transpose (), refs_.transpose ());
+  // compose ( rvec, tvec,
+  //           Vector4f (cam_.rvec.cast<float> ()),
+  //           Vector4f (cam_.tvec.cast<float> ()),
+  //           pose.rvec (), pose.tvec ());
+  pose = Posef (cam_.rvec.cast<float> (), cam_.tvec.cast<float> ())
+          * pose;
   const cv::Mat img = frame.clone ();
   cbVgmImg (id, img);
-  cbVgmMotion (id, rvec, tvec);
-  cbVgmImgMotion (id, img, rvec, tvec);
+  // cbVgmMotion (id, rvec, tvec);
+  // cbVgmImgMotion (id, img, rvec, tvec);
+  cbVgmMotion (id, pose.rotation ().vector (), pose.translation ());
+  cbVgmImgMotion (id, img, pose.rotation ().vector (), pose.translation ());
 }
 
 ///////////////////////////////////////////////
@@ -302,8 +325,10 @@ ht::VgmGrabber::parseCamera (const std::string& path)
   }
   
   // Perform final conversion to storage world to camera
-  cam_.rvec = angle_axis (q);
-  cam_.tvec = -rotate4 (cam_.rvec, t);
+  const AxisAngled aa (q);
+  cam_.rvec = aa.vector ();
+  // cam_.tvec = -rotate4 (cam_.rvec, t);
+  cam_.tvec = - (aa * t);
   return true;
 }
 
@@ -438,17 +463,23 @@ ht::VgmGrabber::parseReferencePoints (const std::string& data)
   std::istringstream ss (data);
   for (std::string line; std::getline (ss, line);)
   {
-    const size_t beg = line.find ('[') + 1;
-    const size_t end = line.find (']', beg);
-    std::istringstream ss_line (line.substr (beg, end - beg));
+    size_t beg = line.find ('[');
+    while (beg != std::string::npos)
+    {
+      ++beg;
+      const size_t end = line.find (']', beg);
+      std::istringstream ss_line (line.substr (beg, end - beg));
 
-    std::string number;
-    std::getline (ss_line, number, ';');
-    pts.emplace_back (std::stof (number));
-    std::getline (ss_line, number, ';');
-    pts.emplace_back (std::stof (number));
-    std::getline (ss_line, number);
-    pts.emplace_back (std::stof (number));
+      std::string number;
+      std::getline (ss_line, number, ';');
+      pts.emplace_back (std::stof (number));
+      std::getline (ss_line, number, ';');
+      pts.emplace_back (std::stof (number));
+      std::getline (ss_line, number);
+      pts.emplace_back (std::stof (number));
+
+      beg = line.find ('[', end);
+    }
   }
 
   assert (!(pts.size () % 3));

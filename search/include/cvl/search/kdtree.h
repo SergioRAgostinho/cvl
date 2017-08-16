@@ -40,7 +40,7 @@ namespace ht
       //            Methods
       /////////////////////////////////
 
-      KDTree (const int leaf_max_size = 10);
+      KDTree (const int leaf_max_size = 20);
 
       /** \brief Generates the tree index for provided data set */
       void generateTreeIndex ();
@@ -81,6 +81,7 @@ namespace ht
       //            Types
       /////////////////////////////////
 
+      // typedef nanoflann::KDTreeEigenMatrixAdaptor<_EigenMatrix, _EigenMatrix::ColsAtCompileTime> Tree;
       typedef nanoflann::KDTreeEigenMatrixAdaptor<_EigenMatrix> Tree;
 
       /////////////////////////////////

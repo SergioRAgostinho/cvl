@@ -29,7 +29,8 @@ ht::vgm_model_reader (ht::TriMesh& mesh, const char* const path)
 
   mxArray* const verts = mxGetField (model, 0, "vertices");
   mxArray* const faces = mxGetField (model, 0, "triangles");
-  if (!model || !faces)
+  mxArray* const origin = mxGetField (model, 0, "origin");
+  if (!model || !faces || !origin)
   {
     std::cerr << '[' << __func__ << "] Could not parse the structure fields" << std::endl;
     mxDestroyArray (model);
@@ -39,19 +40,31 @@ ht::vgm_model_reader (ht::TriMesh& mesh, const char* const path)
 
   const size_t s_v = mxGetNumberOfElements (verts);
   const size_t s_f = mxGetNumberOfElements (faces);
+  #ifndef NDEBUG
+    const size_t s_o = mxGetNumberOfElements (origin);
+  #endif
 
   // make sure data makes sense
   assert (!(s_v % 3));
   assert (!(s_f % 3));
+  assert (!(s_o % 3));
   mesh.v.resize (s_v);
   mesh.f.resize (s_f);
 
   // Get access to data
   const double* const data_v = (double*) mxGetData (verts);
   const double* const data_f = (double*) mxGetData (faces);
+  const double* const data_o = (double*) mxGetData (origin);
 
   // Perform copy
-  std::copy (data_v, data_v + s_v, mesh.v.begin ());
+  for (size_t i = 0; i < s_v; i+= 3)
+  {
+    mesh.v[i] = (float) data_v[i] - (float) data_o[0];
+    mesh.v[i + 1] = (float) data_v[i + 1] - (float) data_o[1];
+    mesh.v[i + 2] = (float) data_v[i + 2] - (float) data_o[2];
+  }
+  // std::copy (data_v, data_v + s_v, mesh.v.begin ());
+
   for (size_t i = 0; i < s_f; ++i)
     mesh.f[i] = size_t(data_f[i]) - 1u;
 

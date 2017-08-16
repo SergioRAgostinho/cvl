@@ -3,6 +3,7 @@
   * \date created: 2017/07/27
   * \date last modified: 2017/07/27
   */
+#include <cvl/filter/duplicate.h>
 #include <cvl/io/vgm_model_reader.h>
 
 using ht::TriMesh;
@@ -24,5 +25,11 @@ main (const int argc, const char** const argv)
     return -1;
 
   std::cout << "Mesh data:\n" << mesh;
+
+  // Filter stage
+  std::shared_ptr<TriMesh>  input = std::make_shared<TriMesh> (mesh);
+  ht::DuplicateVertexRemoval<TriMesh> f (1.f);
+  f.setInput (input);
+  mesh = f.filter ();
 	return 0;
 }

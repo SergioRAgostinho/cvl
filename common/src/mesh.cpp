@@ -45,6 +45,11 @@ ht::EdgeMesh::EdgeMesh (const ht::TriMesh& tri,
     {
       const size_t min = std::min (f[i + (j % 3)], f[i + ((j + 1) % 3)]);
       const size_t max = std::max (f[i + (j % 3)], f[i + ((j + 1) % 3)]);
+
+      // Might happen due to vertex filtering
+      if (min == max)
+        continue;
+
       const std::pair<size_t, size_t> key (min, max);
       std::vector<size_t>& faces = edges[key];
       faces.push_back (i);

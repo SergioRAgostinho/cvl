@@ -1,7 +1,7 @@
 /**
 	* \author Sergio Agostinho - sergio.r.agostinho@gmail.com
   * \date created: 2017/05/03
-  * \date last modified: 2017/05/03
+  * \date last modified: 2017/08/14
   */
 #pragma once
 #ifndef CVL_COMMON_FUNCTION_H_
@@ -17,18 +17,8 @@ namespace ht
   class FunctionBase
   {
     public:
+
       virtual ~FunctionBase() = default;
-
-      FunctionBase () = default;
-
-      FunctionBase (const FunctionBase&) = default;
-
-      FunctionBase (FunctionBase&&) = default;
-
-
-      FunctionBase& operator= (const FunctionBase&) = default;
-      
-      FunctionBase& operator= (FunctionBase&&) = default;
   };
 
   /** \brief Mock class to allow constructing templates with function

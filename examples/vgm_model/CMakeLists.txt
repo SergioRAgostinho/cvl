@@ -8,6 +8,7 @@ cvl_dependency_check (BUILD_${TARGET_NAME}
 												DEPENDS BUILD_${MODULE_NAME}
 																BUILD_io
 																Matlab_FOUND
+																BUILD_filter
 												CUSTOM_MESSAGE "Not building ${TARGET_NAME}")
 
 #target
@@ -15,6 +16,7 @@ if (BUILD_${TARGET_NAME})
 	add_executable (${TARGET_NAME} "vgm_model.cpp")
 	target_link_libraries (${TARGET_NAME}
 														"${PROJECT_NAME}_io"
+														"${PROJECT_NAME}_filter"
 														${Matlab_LIBRARIES})
 	target_include_directories (${TARGET_NAME}
 																PRIVATE ${Matlab_INCLUDE_DIRS})
