@@ -48,8 +48,9 @@ ht::vgm_model_reader (ht::TriMesh& mesh, const char* const path)
   assert (!(s_v % 3));
   assert (!(s_f % 3));
   assert (!(s_o % 3));
-  mesh.v.resize (s_v);
-  mesh.f.resize (s_f);
+  // mesh.vertices ()->resize (s_v);
+  // mesh.faces ()->resize (s_f);
+  mesh = TriMesh (s_v, s_f, 0);
 
   // Get access to data
   const double* const data_v = (double*) mxGetData (verts);
@@ -59,14 +60,14 @@ ht::vgm_model_reader (ht::TriMesh& mesh, const char* const path)
   // Perform copy
   for (size_t i = 0; i < s_v; i+= 3)
   {
-    mesh.v[i] = (float) data_v[i] - (float) data_o[0];
-    mesh.v[i + 1] = (float) data_v[i + 1] - (float) data_o[1];
-    mesh.v[i + 2] = (float) data_v[i + 2] - (float) data_o[2];
+    (*mesh.vertices ())[i] = (float) data_v[i] - (float) data_o[0];
+    (*mesh.vertices ())[i + 1] = (float) data_v[i + 1] - (float) data_o[1];
+    (*mesh.vertices ())[i + 2] = (float) data_v[i + 2] - (float) data_o[2];
   }
   // std::copy (data_v, data_v + s_v, mesh.v.begin ());
 
   for (size_t i = 0; i < s_f; ++i)
-    mesh.f[i] = size_t(data_f[i]) - 1u;
+    (*mesh.faces ())[i] = size_t(data_f[i]) - 1u;
 
   mxDestroyArray (model);
   matClose (file);

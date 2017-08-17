@@ -15,9 +15,9 @@
 ht::Vector3f
 ht::TriMesh::faceNormal (const size_t idx) const
 {
-  const Eigen::Map<const Vector3f> p0 (&v[3*f[idx]]);
-  const Eigen::Map<const Vector3f> p1 (&v[3*f[idx + 1]]);
-  const Eigen::Map<const Vector3f> p2 (&v[3*f[idx + 2]]);
+  const Eigen::Map<const Vector3f> p0 (&(*v_)[3*(*f_)[idx]]);
+  const Eigen::Map<const Vector3f> p1 (&(*v_)[3*(*f_)[idx + 1]]);
+  const Eigen::Map<const Vector3f> p2 (&(*v_)[3*(*f_)[idx + 2]]);
 
   Vector3f normal = (p1 - p0).cross (p2 - p1);
   normal.normalize ();
@@ -30,9 +30,9 @@ ht::TriMesh::faceNormal (const size_t idx) const
 
 ht::EdgeMesh::EdgeMesh (const ht::TriMesh& tri,
                         const float filter_angle)
-  : v (tri.v)
+  : MeshBase (tri.vertices ())
 {
-  const std::vector<size_t>& f = tri.f;
+  const std::vector<size_t>& f = *tri.faces ();
 
   assert (filter_angle >= 0.f);
   assert (!(f.size () % 3));
@@ -67,12 +67,12 @@ ht::EdgeMesh::EdgeMesh (const ht::TriMesh& tri,
   }
 
   // resize
-  e.resize (edges.size () * 2);
+  e_ = std::make_shared<EdgeV> (edges.size () * 2);
   size_t i = 0;
   for (const auto& edge : edges)
   {
-    e[i++] = edge.first.first;
-    e[i++] = edge.first.second;
+    (*e_)[i++] = edge.first.first;
+    (*e_)[i++] = edge.first.second;
   }
 }
 
@@ -93,27 +93,34 @@ ht::EdgeMesh::filter (const ht::TriMesh& tri,
   return *this;
 }
 
+std::ostream&
+operator<< (std::ostream& os, const ht::MeshBase& m)
+{
+  // Vertices
+  const size_t s_v = m.v_->size () / 3;
+  os << "vert: (" << s_v << ")\n";
+  for (size_t i = 0; i < s_v; ++i)
+    os << ' ' << (*m.v_)[3*i] << ' ' << (*m.v_)[3*i + 1] << ' ' << (*m.v_)[3*i + 2] << '\n';
+  return os;
+}
 
 std::ostream&
 operator<< (std::ostream& os, const ht::Mesh& m)
 {
   // Vertices
-	const size_t s_v = m.v.size () / 3;
-	os << "vert: (" << s_v << ")\n";
-	for (size_t i = 0; i < s_v; ++i)
-		os << ' ' << m.v[3*i] << ' ' << m.v[3*i + 1] << ' ' << m.v[3*i + 2] << '\n';
+  os << *static_cast<const ht::MeshBase*> (&m);
 
   // Faces
-  const size_t s_f = m.f.size ();
+  const size_t s_f = m.f_->size ();
   os << "faces: (" << s_f << ")\n";
   for (size_t i = 0; i < s_f; ++i)
-    os << ' ' << m.f[i] << '\n';
+    os << ' ' << (*m.f_)[i] << '\n';
 
   // Normals
-  const size_t s_n = m.n.size () / 3;
+  const size_t s_n = m.n_->size () / 3;
   os << "normals: (" << s_n << ")\n";
   for (size_t i = 0; i < s_n; ++i)
-    os << ' ' << m.n[3*i] << ' ' << m.n[3*i + 1] << ' ' << m.n[3*i + 2] << '\n';
+    os << ' ' << (*m.n_)[3*i] << ' ' << (*m.n_)[3*i + 1] << ' ' << (*m.n_)[3*i + 2] << '\n';
 	return os;
 }
 
@@ -121,22 +128,19 @@ std::ostream&
 operator<< (std::ostream& os, const ht::TriMesh& m)
 {
   // Vertices
-  const size_t s_v = m.v.size () / 3;
-  os << "vert: (" << s_v << ")\n";
-  for (size_t i = 0; i < s_v; ++i)
-    os << ' ' << m.v[3*i] << ' ' << m.v[3*i + 1] << ' ' << m.v[3*i + 2] << '\n';
+  os << *static_cast<const ht::MeshBase*> (&m);
 
   // Faces
-  const size_t s_f = m.f.size () / 3;
+  const size_t s_f = m.f_->size () / 3;
   os << "faces: (" << s_f << ")\n";
   for (size_t i = 0; i < s_f; ++i)
-    os << ' ' << m.f[3*i] << ' ' << m.f[3*i + 1] << ' ' << m.f[3*i + 2] << '\n';
+    os << ' ' << (*m.f_)[3*i] << ' ' << (*m.f_)[3*i + 1] << ' ' << (*m.f_)[3*i + 2] << '\n';
 
   // Normals
-  const size_t s_n = m.n.size () / 3;
+  const size_t s_n = m.n_->size () / 3;
   os << "normals: (" << s_n << ")\n";
   for (size_t i = 0; i < s_n; ++i)
-    os << ' ' << m.n[3*i] << ' ' << m.n[3*i + 1] << ' ' << m.n[3*i + 2] << '\n';
+    os << ' ' << (*m.n_)[3*i] << ' ' << (*m.n_)[3*i + 1] << ' ' << (*m.n_)[3*i + 2] << '\n';
   return os;
 }
 
@@ -144,15 +148,12 @@ std::ostream&
 operator<< (std::ostream& os, const ht::EdgeMesh& m)
 {
   // Vertices
-  const size_t s_v = m.v.size () / 3;
-  os << "vert: (" << s_v << ")\n";
-  for (size_t i = 0; i < s_v; ++i)
-    os << ' ' << m.v[3*i] << ' ' << m.v[3*i + 1] << ' ' << m.v[3*i + 2] << '\n';
+  os << *static_cast<const ht::MeshBase*> (&m);
 
   // Edges
-  const size_t s_e = m.e.size () / 2;
+  const size_t s_e = m.e_->size () / 2;
   os << "edges: (" << s_e << ")\n";
   for (size_t i = 0; i < s_e; ++i)
-    os << ' ' << m.e[2*i] << ' ' << m.e[2*i + 1] << '\n';
+    os << ' ' << (*m.e_)[2*i] << ' ' << (*m.e_)[2*i + 1] << '\n';
   return os;
 }

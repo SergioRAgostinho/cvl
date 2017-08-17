@@ -15,7 +15,7 @@ namespace ht
   struct Camera
   {
     Matrix43<_Float> k; //vectorization
-    Vector4<_Float> rvec;
+    Vector4<_Float> rvec; //axis angle
     Vector4<_Float> tvec;
     unsigned int width;
     unsigned int height;

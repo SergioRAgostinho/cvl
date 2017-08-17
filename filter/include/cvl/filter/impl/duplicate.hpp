@@ -7,7 +7,7 @@ template<typename _Mesh> _Mesh
 ht::DuplicateVertexRemoval<_Mesh>::filter ()
 {
   // Map input data
-  std::vector<float>& v = input_->v;
+  std::vector<float>& v = *input_->vertices ();
   assert (!(v.size () % 3));
   const size_t n_v = v.size () / 3;
   Eigen::Map<Matrix<float, Dynamic, 3>> mat (v.data (), n_v, 3);
@@ -64,8 +64,7 @@ ht::DuplicateVertexRemoval<_Mesh>::filter ()
   }
 
   // Build final mesh
-  MeshT mesh;
-  mesh.v.resize (3 * unique_pts);
+  MeshT mesh (3 * unique_pts, input_->faces ()->size (), 0);
   std::vector<size_t> red_idx (n_v);
 
   // populate vertices and faces and reduce index vector
@@ -78,7 +77,7 @@ ht::DuplicateVertexRemoval<_Mesh>::filter ()
     if (idx != i)
       ++j;
     else
-      std::copy (&v[3*i], &v[3*i] + 3, &mesh.v[3*k++]);
+      std::copy (&v[3*i], &v[3*i] + 3, &(*mesh.vertices ())[3*k++]);
   }
 
   // std::cout << "idx:";
@@ -99,9 +98,8 @@ ht::DuplicateVertexRemoval<_Mesh>::filter ()
 
 
   // populate faces
-  mesh.f.resize (input_->f.size ());
-  for (size_t i = 0; i < mesh.f.size (); ++i)
-    mesh.f[i] = red_idx[input_->f[i]];
+  for (size_t i = 0; i < mesh.faces ()->size (); ++i)
+    (*mesh.faces ())[i] = red_idx[(*input_->faces ())[i]];
 
   return mesh;
 }
