@@ -1,6 +1,0 @@
-/**
-  * \author Sergio Agostinho - sergio.r.agostinho@gmail.com
-  * \date created: 2017/08/11
-  * \date last modified: 2017/08/11
-  */
-#include <cvl/filter/duplicate.h>
