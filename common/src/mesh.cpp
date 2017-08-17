@@ -97,7 +97,7 @@ std::ostream&
 operator<< (std::ostream& os, const ht::MeshBase& m)
 {
   // Vertices
-  const size_t s_v = m.v_->size () / 3;
+  const size_t s_v = m.sizeVertices ();
   os << "vert: (" << s_v << ")\n";
   for (size_t i = 0; i < s_v; ++i)
     os << ' ' << (*m.v_)[3*i] << ' ' << (*m.v_)[3*i + 1] << ' ' << (*m.v_)[3*i + 2] << '\n';
@@ -111,13 +111,13 @@ operator<< (std::ostream& os, const ht::Mesh& m)
   os << *static_cast<const ht::MeshBase*> (&m);
 
   // Faces
-  const size_t s_f = m.f_->size ();
+  const size_t s_f = m.sizeFaces ();
   os << "faces: (" << s_f << ")\n";
   for (size_t i = 0; i < s_f; ++i)
     os << ' ' << (*m.f_)[i] << '\n';
 
   // Normals
-  const size_t s_n = m.n_->size () / 3;
+  const size_t s_n = m.sizeNormals ();
   os << "normals: (" << s_n << ")\n";
   for (size_t i = 0; i < s_n; ++i)
     os << ' ' << (*m.n_)[3*i] << ' ' << (*m.n_)[3*i + 1] << ' ' << (*m.n_)[3*i + 2] << '\n';
@@ -131,13 +131,13 @@ operator<< (std::ostream& os, const ht::TriMesh& m)
   os << *static_cast<const ht::MeshBase*> (&m);
 
   // Faces
-  const size_t s_f = m.f_->size () / 3;
+  const size_t s_f = m.sizeFaces ();
   os << "faces: (" << s_f << ")\n";
   for (size_t i = 0; i < s_f; ++i)
     os << ' ' << (*m.f_)[3*i] << ' ' << (*m.f_)[3*i + 1] << ' ' << (*m.f_)[3*i + 2] << '\n';
 
   // Normals
-  const size_t s_n = m.n_->size () / 3;
+  const size_t s_n = m.sizeNormals () / 3;
   os << "normals: (" << s_n << ")\n";
   for (size_t i = 0; i < s_n; ++i)
     os << ' ' << (*m.n_)[3*i] << ' ' << (*m.n_)[3*i + 1] << ' ' << (*m.n_)[3*i + 2] << '\n';
@@ -151,7 +151,7 @@ operator<< (std::ostream& os, const ht::EdgeMesh& m)
   os << *static_cast<const ht::MeshBase*> (&m);
 
   // Edges
-  const size_t s_e = m.e_->size () / 2;
+  const size_t s_e = m.sizeEdges ();
   os << "edges: (" << s_e << ")\n";
   for (size_t i = 0; i < s_e; ++i)
     os << ' ' << (*m.e_)[2*i] << ' ' << (*m.e_)[2*i + 1] << '\n';

@@ -190,16 +190,16 @@ namespace ht
   typedef Array44<float> Array44f;
   typedef Array44<double> Array44d;
 
-  template<typename _Scalar, int _Options = ColMajor>
+  template<typename _Scalar, int _Options = 0>
   using Array2 = Eigen::Array<_Scalar, 2, 1, _Options>;
 
-  template<typename _Scalar, int _Options = ColMajor>
+  template<typename _Scalar, int _Options = 0>
   using Array3 = Array<_Scalar, 3, 1, _Options>;
 
-  template<typename _Scalar, int _Options = ColMajor>
+  template<typename _Scalar, int _Options = 0>
   using Array4 = Array<_Scalar, 4, 1, _Options>;
 
-  template<typename _Scalar, int _Options = ColMajor>
+  template<typename _Scalar, int _Options = 0>
   using ArrayX = Array<_Scalar, Dynamic, 1, _Options>;
 
   typedef Array2<uint8_t> Array2b;

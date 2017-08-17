@@ -8,8 +8,7 @@ ht::DuplicateVertexRemoval<_Mesh>::filter ()
 {
   // Map input data
   std::vector<float>& v = *input_->vertices ();
-  assert (!(v.size () % 3));
-  const size_t n_v = v.size () / 3;
+  const size_t n_v = input_->sizeVertices ();
   Eigen::Map<Matrix<float, Dynamic, 3>> mat (v.data (), n_v, 3);
 
   // If input is dirty, the tree needs to be regenerated
@@ -58,7 +57,7 @@ ht::DuplicateVertexRemoval<_Mesh>::filter ()
   }
 
   // Build final mesh
-  MeshT mesh (3 * unique_pts, input_->faces ()->size (), 0);
+  MeshT mesh (unique_pts, input_->sizeFaces (), 0);
   std::vector<size_t> red_idx (n_v);
 
   // populate vertices and faces and reduce index vector

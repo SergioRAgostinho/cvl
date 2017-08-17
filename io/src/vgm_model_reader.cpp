@@ -48,7 +48,9 @@ ht::vgm_model_reader (ht::TriMesh& mesh, const char* const path)
   assert (!(s_v % 3));
   assert (!(s_f % 3));
   assert (!(s_o % 3));
-  mesh = TriMesh (s_v, s_f, 0);
+  const size_t s_v_n = s_v / 3;
+  const size_t s_f_n = s_f / 3;
+  mesh = TriMesh (s_v_n, s_f_n, 0);
 
   // Get access to data
   const double* const data_v = (double*) mxGetData (verts);
@@ -56,15 +58,12 @@ ht::vgm_model_reader (ht::TriMesh& mesh, const char* const path)
   const double* const data_o = (double*) mxGetData (origin);
 
   // Perform copy
-  for (size_t i = 0; i < s_v; i+= 3)
-  {
-    (*mesh.vertices ())[i] = (float) data_v[i] - (float) data_o[0];
-    (*mesh.vertices ())[i + 1] = (float) data_v[i + 1] - (float) data_o[1];
-    (*mesh.vertices ())[i + 2] = (float) data_v[i + 2] - (float) data_o[2];
-  }
+  Eigen::Map<Matrix<float, Dynamic, 3>> v_map (mesh.vertices ()->data (), s_v_n, 3);
+  v_map = Eigen::Map<const Matrix<double, Dynamic, 3>> (data_v, s_v_n, 3).cast<float> ().rowwise ()
+          - Eigen::Map<const RowVector3d> (data_o).cast<float> ();
 
-  for (size_t i = 0; i < s_f; ++i)
-    (*mesh.faces ())[i] = size_t(data_f[i]) - 1u;
+  Eigen::Map<ArrayX<size_t>> f_map (mesh.faces ()->data (), s_f);
+  f_map = Eigen::Map<const ArrayX<double>> (data_f, s_f).cast<size_t> () - 1u;
 
   mxDestroyArray (model);
   matClose (file);

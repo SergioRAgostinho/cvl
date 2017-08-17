@@ -69,7 +69,7 @@ namespace ht
       {}
 
       MeshBase (const size_t n_v)
-        : v_ (std::make_shared<VertV> (n_v))
+        : v_ (std::make_shared<VertV> (3 * n_v))
       {}
 
       MeshBase (const VertV& v)
@@ -96,6 +96,12 @@ namespace ht
       }
 
       const VertVPtr& vertices () const { return v_; }
+
+      size_t sizeVertices () const
+      {
+        assert (!(v_->size () % 3));
+        return v_->size () / size_t (3);
+      }
 
     protected:
       /** \brief vertices */
@@ -126,7 +132,7 @@ namespace ht
             const size_t n_n)
         : MeshBase (n_v)
         , f_ (std::make_shared<FaceV> (n_f))
-        , n_ (std::make_shared<NormV> (n_n))
+        , n_ (std::make_shared<NormV> (3 * n_n))
       {}
 
       Mesh (const VertV& v,
@@ -168,6 +174,17 @@ namespace ht
 
       const NormVPtr& normals () const { return n_; }
 
+      size_t sizeFaces () const
+      {
+        return f_->size ();
+      }
+
+      size_t sizeNormals () const
+      {
+        assert (!(n_->size () % 3));
+        return n_->size () / size_t (3);
+      }
+
     protected:
 
       /** \brief faces */
@@ -191,7 +208,7 @@ namespace ht
       TriMesh ( const size_t n_v,
                 const size_t n_f,
                 const size_t n_n)
-        : Mesh (n_v, n_f, n_n)
+        : Mesh (n_v, 3 * n_f, n_n)
       {}
 
       Eigen::Map<const Vector3<size_t>> face (const size_t idx) const
@@ -209,6 +226,12 @@ namespace ht
         * \return Returns a normalized vector with the normal
         */
       Vector3f faceNormal (const size_t idx) const;
+
+      size_t sizeFaces () const
+      {
+        assert (!(f_->size () % 3));
+        return f_->size () / size_t (3);
+      }
   };
 
   class EdgeMesh : public MeshBase
@@ -267,6 +290,12 @@ namespace ht
         * \return Returns itself (EdgeMesh).
         */
       EdgeMesh& filter (const TriMesh& tri, const float filter_angle);
+
+      size_t sizeEdges () const
+      {
+        assert (!(e_->size () % 2));
+        return e_->size () / size_t (2);
+      }
 
     protected:
       //////////////////////////

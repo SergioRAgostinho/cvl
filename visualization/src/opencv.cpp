@@ -13,8 +13,7 @@ ht::draw (cv::Mat& img,
           const Vector4f& rvec,
           const Vector4f& tvec)
 {
-  assert (!(mesh.vertices ()->size () % 3));
-  const size_t s_v = mesh.vertices ()->size () / 3;
+  const size_t s_v = mesh.sizeVertices ();
 
   const Eigen::Map<const Matrix<float, 3, Dynamic, ColMajor>> mesh_p (mesh.vertices ()->data (), 3, s_v);
   const Matrix3f rot (Eigen::AngleAxisf (rvec[3], rvec.head<3> ()));
