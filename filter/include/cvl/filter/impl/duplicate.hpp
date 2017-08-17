@@ -34,19 +34,13 @@ ht::DuplicateVertexRemoval<_Mesh>::filter ()
 
   for (size_t i = 0; i < n_v; ++i)
   {
-    const Eigen::Map<Vector3f> pt (&v[3*i]);
+    const Eigen::Map<Vector3f> pt = input_->vertex (i);
     tree_.query (idx, dist, pt, 2);
-
-    auto sq_dist = [] (const float* const p1, const float* const p2)
-    {
-      return (Eigen::Map<const Vector3f> (p1)
-                - Eigen::Map<const Vector3f> (p2)).squaredNorm ();
-    };
 
     size_t& i1 = index_map[i];
     size_t& i2 = index_map[idx[1]];
 
-    if (dist[1] > th || sq_dist (&v[3*i1], &v[3*i2]) > th)
+    if (dist[1] > th || (input_->vertex (i1) - input_->vertex (i2)).squaredNorm () > th)
       continue;
 
     if (i1 < i2)
@@ -77,7 +71,7 @@ ht::DuplicateVertexRemoval<_Mesh>::filter ()
     if (idx != i)
       ++j;
     else
-      std::copy (&v[3*i], &v[3*i] + 3, &(*mesh.vertices ())[3*k++]);
+      mesh.vertex (k++) = input_->vertex (i);
   }
 
   // std::cout << "idx:";

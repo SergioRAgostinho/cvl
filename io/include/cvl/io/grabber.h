@@ -42,9 +42,6 @@ namespace ht
         , running_ (false)
       {}
 
-      /** \brief Default dtor */
-      ~Grabber () { unregisterAllCbs (); }
-
       /** \brief Returns currently active mode */
       inline Mode getMode () const { return mode_; }
 
@@ -92,7 +89,7 @@ namespace ht
       const std::set<const char*> supported_sigs_;
 
       /** \brief registered callbacks */
-      std::map<const char*, std::forward_list<FunctionBase*>> registered_cbs_;
+      std::map<const char*, std::forward_list<std::unique_ptr<FunctionBase>>> registered_cbs_;
 
       /** \brief Supported modes set. ASYNC is always supported */
       const std::set<Mode> supported_modes_;

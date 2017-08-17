@@ -70,9 +70,9 @@ load_model (ht::EdgeMesh& edge, const char* const path)
   }
 
   // //Filter duplicate vertices (still buggy)
-  // ht::DuplicateVertexRemoval<ht::TriMesh> f (0.05f);
-  // f.setInput (std::make_shared<ht::TriMesh> (mesh));
-  // mesh = f.filter ();
+  ht::DuplicateVertexRemoval<ht::TriMesh> f (0.05f);
+  f.setInput (std::make_shared<ht::TriMesh> (mesh));
+  mesh = f.filter ();
 
   // Create edge model
   edge.filter (mesh, .9f);

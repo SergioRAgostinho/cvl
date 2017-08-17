@@ -37,12 +37,10 @@ TEST(Function, FunctorOperator) {
   Function<void(int&)> f_non_const (inc);
 
   // Const
-  // lvalue
   ASSERT_EQ (sum (op1, op2), f_const (op1, op2));
-  // rvalue
   ASSERT_EQ (sum (1, 2), f_const (1, 2));
 
-  // Non const
+  // Non const lvalue
   const int exp = op1 + 1;
   f_non_const (op1);
   ASSERT_EQ (exp, op1);

@@ -48,8 +48,6 @@ ht::vgm_model_reader (ht::TriMesh& mesh, const char* const path)
   assert (!(s_v % 3));
   assert (!(s_f % 3));
   assert (!(s_o % 3));
-  // mesh.vertices ()->resize (s_v);
-  // mesh.faces ()->resize (s_f);
   mesh = TriMesh (s_v, s_f, 0);
 
   // Get access to data
@@ -64,7 +62,6 @@ ht::vgm_model_reader (ht::TriMesh& mesh, const char* const path)
     (*mesh.vertices ())[i + 1] = (float) data_v[i + 1] - (float) data_o[1];
     (*mesh.vertices ())[i + 2] = (float) data_v[i + 2] - (float) data_o[2];
   }
-  // std::copy (data_v, data_v + s_v, mesh.v.begin ());
 
   for (size_t i = 0; i < s_f; ++i)
     (*mesh.faces ())[i] = size_t(data_f[i]) - 1u;

@@ -22,6 +22,6 @@ ht::Grabber::registerCb (const std::function<_Sig>& f)
     return false;
 
   const char* const type = typeid (_Sig).name ();
-  registered_cbs_[type].push_front (new Function<_Sig> (f));
+  registered_cbs_[type].emplace_front (new Function<_Sig> (f));
   return true;
 }

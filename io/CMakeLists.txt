@@ -20,10 +20,8 @@ if (BUILD_${MODULE_NAME})
           "src/utils.cpp")
 
   if (Matlab_FOUND)
-    list (APPEND headers  "include/cvl/io/mat_io.h"
-                          "include/cvl/io/vgm_model_reader.h")
-    list (APPEND sources  "src/mat_io.cpp"
-                          "src/vgm_model_reader.cpp")
+    list (APPEND headers  "include/cvl/io/vgm_model_reader.h")
+    list (APPEND sources  "src/vgm_model_reader.cpp")
 
     if (TinyXML2_FOUND)
       list (APPEND headers "include/cvl/io/vgm_grabber.h")

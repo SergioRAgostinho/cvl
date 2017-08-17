@@ -1,7 +1,7 @@
 /**
   * \author Sergio Agostinho - sergio.r.agostinho@gmail.com
   * \date created: 2017/08/07
-  * \date last modified: 2017/08/10
+  * \date last modified: 2017/08/17
   */
 #pragma once
 #ifndef CVL_SEARCH_KDTREE_H_
@@ -40,13 +40,19 @@ namespace ht
       //            Methods
       /////////////////////////////////
 
-      KDTree (const int leaf_max_size = 20);
+      KDTree (const int leaf_max_size = 20)
+        : leaf_max_size_ (leaf_max_size)
+      {}
 
       /** \brief Generates the tree index for provided data set */
-      void generateTreeIndex ();
+      void generateTreeIndex ()
+      {
+        tree_ = std::make_unique<Tree> (*input_, leaf_max_size_);
+        tree_->index->buildIndex ();
+      }
 
       /** \brief Return the maximum leaf size */
-      int getLeafMaxSize () const;
+      int getLeafMaxSize () const { return leaf_max_size_; }
 
       /** \brief Query the tree for a given points
         * \param[out] idxs - indexes (row number) of the closest points
@@ -68,12 +74,12 @@ namespace ht
         * N being the number of samples and Dim the dimension of
         * each sample
         */
-      void setInput (const InputConstPtr& input);
+      void setInput (const InputConstPtr& input) { input_ = input; }
 
       /** \brief Sets the maximum leaf size
         * \parama[in] leaf_max_size - the maximum leaf size
         */
-      void setLeafMaxSize (const int leaf_max_size);
+      void setLeafMaxSize (const int leaf_max_size) { leaf_max_size_ = leaf_max_size; }
 
     protected:
 

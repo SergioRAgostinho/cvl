@@ -29,10 +29,10 @@ if (BUILD_${MODULE_NAME})
 	set (srcs "src/kdtree.cpp")
 
 	#target properties and creations
-	add_library (${TARGET_NAME} ${srcs})
-	target_link_libraries (${TARGET_NAME} PUBLIC
+	add_library (${TARGET_NAME} INTERFACE)
+	target_link_libraries (${TARGET_NAME} INTERFACE
 																"${PROJECT_NAME}_common")
-	target_include_directories (${TARGET_NAME} PUBLIC
+	target_include_directories (${TARGET_NAME} INTERFACE
                                 "${CMAKE_CURRENT_SOURCE_DIR}/include"
                                 ${nanoflann_INCLUDE_DIR})
 endif (BUILD_${MODULE_NAME})

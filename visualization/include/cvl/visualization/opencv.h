@@ -18,7 +18,7 @@ namespace ht
 	void draw ( cv::Mat& img,
               const EdgeMesh& mesh,
               const Matrix3f& k = Matrix3f::Identity (),
-              const Vector4f& rvec = Vector4f (0.f, 0.f, 0.f, 1.f),
+              const Vector4f& rvec = Vector4f (0.f, 0.f, 1.f, 0.f),
               const Vector4f& tvec = Vector4f (0.f, 0.f, 0.f, 0.f));
 }
 #endif //CVL_VISUALIZATION_OPENCV_H_

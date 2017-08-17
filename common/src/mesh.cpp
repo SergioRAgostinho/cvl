@@ -15,11 +15,11 @@
 ht::Vector3f
 ht::TriMesh::faceNormal (const size_t idx) const
 {
-  const Eigen::Map<const Vector3f> p0 (&(*v_)[3*(*f_)[idx]]);
-  const Eigen::Map<const Vector3f> p1 (&(*v_)[3*(*f_)[idx + 1]]);
-  const Eigen::Map<const Vector3f> p2 (&(*v_)[3*(*f_)[idx + 2]]);
+  const Vector3f v0 = vertex ((*f_)[idx]);
+  const Vector3f v1 = vertex ((*f_)[idx + 1]);
+  const Vector3f v2 = vertex ((*f_)[idx + 2]);
 
-  Vector3f normal = (p1 - p0).cross (p2 - p1);
+  Vector3f normal = (v1 - v0).cross (v2 - v1);
   normal.normalize ();
   return normal;
 }

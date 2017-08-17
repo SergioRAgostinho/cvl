@@ -27,11 +27,6 @@ ht::Grabber::setMode (const ht::Grabber::Mode mode)
 void
 ht::Grabber::unregisterAllCbs ()
 {
-  for (std::pair<const char* const, std::forward_list<FunctionBase*>>&
-    sig : registered_cbs_)
-  {
-    for (FunctionBase* ptr : sig.second)
-      delete ptr;
+  for (auto& sig : registered_cbs_)
     sig.second.clear ();
-  }
 }
