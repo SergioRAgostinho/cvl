@@ -1,6 +1,6 @@
-# Welcome to (yet another) Computer Vision Library (CVL) documentation
+# (yet another) Computer Vision Library (CVL) documentation
 
-I hope it will shed some light on how the whole API is structured.
+[![Build Status](https://travis-ci.org/SergioRAgostinho/cvl.svg?branch=master)](https://travis-ci.org/SergioRAgostinho/cvl) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## Introduction
 

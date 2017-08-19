@@ -51,7 +51,7 @@ find_package (nanoflann)
 find_package (TinyXML2)
 find_package (Matlab COMPONENTS MAT_LIBRARY MX_LIBRARY)
 find_package (GTest)
-find_package (Doxygen 1.8.0)
+find_package (Doxygen 1.8.3)
 
 # Options
 option (BUILD_SHARED_LIBS "Selects if the library is build as shared library or a static one." ON)

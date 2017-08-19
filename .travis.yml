@@ -1,0 +1,11 @@
+language: cpp
+os: osx
+compiler:
+  - clang
+env:
+  - TASK="build"
+  - TASK="doc"
+install:
+  - bash .travis.sh install
+script:
+  - bash .travis.sh $TASK
