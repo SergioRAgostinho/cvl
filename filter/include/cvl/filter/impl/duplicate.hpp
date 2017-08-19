@@ -1,15 +1,14 @@
-/**
-  * \author Sergio Agostinho - sergio.r.agostinho@gmail.com
-  * \date created: 2017/08/11
-  * \date last modified: 2017/08/12
-  */
+/*
+* \author Sergio Agostinho - sergio(dot)r(dot)agostinho(at)gmail(dot)com
+* \date created: 2017/08/11
+* \date last modified: 2017/08/12
+*/
 template<typename _Mesh> _Mesh
 ht::DuplicateVertexRemoval<_Mesh>::filter ()
 {
   // Map input data
-  std::vector<float>& v = input_->v;
-  assert (!(v.size () % 3));
-  const size_t n_v = v.size () / 3;
+  std::vector<float>& v = *input_->vertices ();
+  const size_t n_v = input_->sizeVertices ();
   Eigen::Map<Matrix<float, Dynamic, 3>> mat (v.data (), n_v, 3);
 
   // If input is dirty, the tree needs to be regenerated
@@ -34,19 +33,13 @@ ht::DuplicateVertexRemoval<_Mesh>::filter ()
 
   for (size_t i = 0; i < n_v; ++i)
   {
-    const Eigen::Map<Vector3f> pt (&v[3*i]);
+    const Eigen::Map<Vector3f> pt = input_->vertex (i);
     tree_.query (idx, dist, pt, 2);
-
-    auto sq_dist = [] (const float* const p1, const float* const p2)
-    {
-      return (Eigen::Map<const Vector3f> (p1)
-                - Eigen::Map<const Vector3f> (p2)).squaredNorm ();
-    };
 
     size_t& i1 = index_map[i];
     size_t& i2 = index_map[idx[1]];
 
-    if (dist[1] > th || sq_dist (&v[3*i1], &v[3*i2]) > th)
+    if (dist[1] > th || (input_->vertex (i1) - input_->vertex (i2)).squaredNorm () > th)
       continue;
 
     if (i1 < i2)
@@ -64,8 +57,7 @@ ht::DuplicateVertexRemoval<_Mesh>::filter ()
   }
 
   // Build final mesh
-  MeshT mesh;
-  mesh.v.resize (3 * unique_pts);
+  MeshT mesh (unique_pts, input_->sizeFaces (), 0);
   std::vector<size_t> red_idx (n_v);
 
   // populate vertices and faces and reduce index vector
@@ -78,7 +70,7 @@ ht::DuplicateVertexRemoval<_Mesh>::filter ()
     if (idx != i)
       ++j;
     else
-      std::copy (&v[3*i], &v[3*i] + 3, &mesh.v[3*k++]);
+      mesh.vertex (k++) = input_->vertex (i);
   }
 
   // std::cout << "idx:";
@@ -99,9 +91,8 @@ ht::DuplicateVertexRemoval<_Mesh>::filter ()
 
 
   // populate faces
-  mesh.f.resize (input_->f.size ());
-  for (size_t i = 0; i < mesh.f.size (); ++i)
-    mesh.f[i] = red_idx[input_->f[i]];
+  for (size_t i = 0; i < mesh.faces ()->size (); ++i)
+    (*mesh.faces ())[i] = red_idx[(*input_->faces ())[i]];
 
   return mesh;
 }

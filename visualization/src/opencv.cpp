@@ -1,5 +1,5 @@
 /**
-  * \author Sergio Agostinho - sergio.r.agostinho@gmail.com
+  * \author Sergio Agostinho - sergio(dot)r(dot)agostinho(at)gmail(dot)com
   * \date created: 2017/07/30
   * \date last modified: 2017/07/30
   */
@@ -13,21 +13,20 @@ ht::draw (cv::Mat& img,
           const Vector4f& rvec,
           const Vector4f& tvec)
 {
-  assert (!(mesh.v.size () % 3));
-  const size_t s_v = mesh.v.size () / 3;
+  const size_t s_v = mesh.sizeVertices ();
 
-  const Eigen::Map<const Matrix<float, 3, Dynamic, ColMajor>> mesh_p (mesh.v.data (), 3, s_v);
+  const Eigen::Map<const Matrix<float, 3, Dynamic, ColMajor>> mesh_p (mesh.vertices ()->data (), 3, s_v);
   const Matrix3f rot (Eigen::AngleAxisf (rvec[3], rvec.head<3> ()));
 
   const Array<float, 3, Dynamic, ColMajor> pts = k * ((rot * mesh_p).colwise () + tvec.head<3> ());
   const Array<int, 2, Dynamic, ColMajor> uvs = (pts.topRows<2> ().rowwise () * (1.f / pts.bottomRows<1> ())).cast<int> ();
 
   // iterate over all lines and draw them
-  assert (!(mesh.e.size () % 2));
-  for (size_t i = 0; i < mesh.e.size ();)
+  assert (!(mesh.edges()->size () % 2));
+  for (size_t i = 0; i < mesh.edges ()->size ();)
   {
-    const cv::Point* const pt1 = reinterpret_cast<const cv::Point*> (uvs.data () + 2 * mesh.e[i++]);
-    const cv::Point* const pt2 = reinterpret_cast<const cv::Point*> (uvs.data () + 2 * mesh.e[i++]);
+    const cv::Point* const pt1 = reinterpret_cast<const cv::Point*> (uvs.data () + 2 * (*mesh.edges ())[i++]);
+    const cv::Point* const pt2 = reinterpret_cast<const cv::Point*> (uvs.data () + 2 * (*mesh.edges ())[i++]);
     cv::line (img, *pt1, *pt2, cv::Scalar (255, 255, 255), 1, cv::LINE_AA);
   }
 }

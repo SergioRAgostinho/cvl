@@ -1,5 +1,5 @@
 /**
-  * \author Sergio Agostinho - sergio.r.agostinho@gmail.com
+  * \author Sergio Agostinho - sergio(dot)r(dot)agostinho(at)gmail(dot)com
   * \date created: 2017/05/05
   * \date last modified: 2017/05/09
   */
@@ -7,6 +7,7 @@
 #include <cvl/io/utils.h>
 #include <cvl/common/geometry.h>
 #include <tinyxml2.h>
+#include <future>
 #include <thread>
 #include <iostream>
 
@@ -19,8 +20,14 @@ ht::VgmGrabber::VgmGrabber (const char* const path)
 {
   parsePathAndName (path);
   parseCamera (path_ + '/' + name_ + '/' + name_ + ".xcp");
-  parseConfigurationFile ();
-  streampos_ = findStreamPos ("Trajectories");
+
+  // Both these can happen async
+  std::future<void> conf_file_done = std::async (&VgmGrabber::parseConfigurationFile, this);
+  std::future<size_t> streampos_done = std::async (&VgmGrabber::findStreamPos, this, "Trajectories");
+
+  // probe results
+  conf_file_done.wait ();
+  streampos_ = streampos_done.get ();
 }
 
 bool
@@ -151,18 +158,10 @@ ht::VgmGrabber::trigger ()
 
 
   // notify
-  // rigid (rvec, tvec, markers.transpose (), refs_.transpose ());
-  Posef pose = rigid (markers.transpose (), refs_.transpose ());
-  // compose ( rvec, tvec,
-  //           Vector4f (cam_.rvec.cast<float> ()),
-  //           Vector4f (cam_.tvec.cast<float> ()),
-  //           pose.rvec (), pose.tvec ());
-  pose = Posef (cam_.rvec.cast<float> (), cam_.tvec.cast<float> ())
-          * pose;
+  Posef pose = Posef (cam_.rvec.cast<float> (), cam_.tvec.cast<float> ())
+                * rigid (markers.transpose (), refs_.transpose ());
   const cv::Mat img = frame.clone ();
   cbVgmImg (id, img);
-  // cbVgmMotion (id, rvec, tvec);
-  // cbVgmImgMotion (id, img, rvec, tvec);
   cbVgmMotion (id, pose.rotation ().vector (), pose.translation ());
   cbVgmImgMotion (id, img, pose.rotation ().vector (), pose.translation ());
 }
@@ -175,8 +174,8 @@ void
 ht::VgmGrabber::cbVgmImg (const size_t id,
                           const cv::Mat& frame) const
 {
-  for (const FunctionBase* const f : registered_cbs_.at (typeid (cb_vgm_img).name ()))
-    (*static_cast<const Function<cb_vgm_img>*> (f)) (id, frame);
+  for (const auto& f : registered_cbs_.at (typeid (cb_vgm_img).name ()))
+    (*static_cast<const Function<cb_vgm_img>*> (f.get ())) (id, frame);
 }
 
 void
@@ -184,8 +183,8 @@ ht::VgmGrabber::cbVgmMotion ( const size_t id,
                               const Vector4f& rvec,
                               const Vector4f& tvec) const
 {
-  for (const FunctionBase* const f : registered_cbs_.at (typeid (cb_vgm_motion).name ()))
-    (*static_cast<const Function<cb_vgm_motion>*> (f)) (id, rvec, tvec);
+  for (const auto& f : registered_cbs_.at (typeid (cb_vgm_motion).name ()))
+    (*static_cast<const Function<cb_vgm_motion>*> (f.get ())) (id, rvec, tvec);
 }
 
 void
@@ -194,8 +193,8 @@ ht::VgmGrabber::cbVgmImgMotion (const size_t id,
                                 const Vector4f& rvec,
                                 const Vector4f& tvec) const
 {
-  for (const FunctionBase* const f : registered_cbs_.at (typeid (cb_vgm_img_motion).name ()))
-    (*static_cast<const Function<cb_vgm_img_motion>*> (f)) (id, frame, rvec, tvec);
+  for (const auto& f : registered_cbs_.at (typeid (cb_vgm_img_motion).name ()))
+    (*static_cast<const Function<cb_vgm_img_motion>*> (f.get ())) (id, frame, rvec, tvec);
 }
 
 size_t
@@ -327,7 +326,6 @@ ht::VgmGrabber::parseCamera (const std::string& path)
   // Perform final conversion to storage world to camera
   const AxisAngled aa (q);
   cam_.rvec = aa.vector ();
-  // cam_.tvec = -rotate4 (cam_.rvec, t);
   cam_.tvec = - (aa * t);
   return true;
 }

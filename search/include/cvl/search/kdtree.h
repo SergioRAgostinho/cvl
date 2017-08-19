@@ -1,7 +1,9 @@
 /**
-  * \author Sergio Agostinho - sergio.r.agostinho@gmail.com
+  * \author Sergio Agostinho - sergio(dot)r(dot)agostinho(at)gmail(dot)com
   * \date created: 2017/08/07
-  * \date last modified: 2017/08/10
+  * \date last modified: 2017/08/19
+  * \file kdtree.h
+  * \brief Provides the the KDTree implementation
   */
 #pragma once
 #ifndef CVL_SEARCH_KDTREE_H_
@@ -12,6 +14,13 @@
 
 namespace ht
 {
+  /** \addtogroup search
+    *  @{
+    */
+
+  /** \brief A wrapper for the nanoflann KDtree Eigen::Matrix
+    * search implementation
+    */
   template<typename _EigenMatrix>
   class KDTree
   {
@@ -40,13 +49,24 @@ namespace ht
       //            Methods
       /////////////////////////////////
 
-      KDTree (const int leaf_max_size = 20);
+      /** \brief Ctor. Allows specifying the max size of the leafs
+        * \param[in] leaf_max_size - the maximum leaf size
+        */
+      KDTree (const int leaf_max_size = 20)
+        : leaf_max_size_ (leaf_max_size)
+      {}
 
       /** \brief Generates the tree index for provided data set */
-      void generateTreeIndex ();
+      void generateTreeIndex ()
+      {
+        tree_ = std::make_unique<Tree> (*input_, leaf_max_size_);
+        tree_->index->buildIndex ();
+      }
 
-      /** \brief Return the maximum leaf size */
-      int getLeafMaxSize () const;
+      /** \brief Getter for the maximum leaf size
+        * \return Returns the maximum leaf size
+        */
+      int getLeafMaxSize () const { return leaf_max_size_; }
 
       /** \brief Query the tree for a given points
         * \param[out] idxs - indexes (row number) of the closest points
@@ -68,12 +88,12 @@ namespace ht
         * N being the number of samples and Dim the dimension of
         * each sample
         */
-      void setInput (const InputConstPtr& input);
+      void setInput (const InputConstPtr& input) { input_ = input; }
 
       /** \brief Sets the maximum leaf size
-        * \parama[in] leaf_max_size - the maximum leaf size
+        * \param[in] leaf_max_size - the maximum leaf size
         */
-      void setLeafMaxSize (const int leaf_max_size);
+      void setLeafMaxSize (const int leaf_max_size) { leaf_max_size_ = leaf_max_size; }
 
     protected:
 
@@ -81,7 +101,7 @@ namespace ht
       //            Types
       /////////////////////////////////
 
-      // typedef nanoflann::KDTreeEigenMatrixAdaptor<_EigenMatrix, _EigenMatrix::ColsAtCompileTime> Tree;
+      /** \brief Alias for the KDTree type */
       typedef nanoflann::KDTreeEigenMatrixAdaptor<_EigenMatrix> Tree;
 
       /////////////////////////////////
@@ -97,6 +117,8 @@ namespace ht
       /** \brief Maximum size of leaf */
       int leaf_max_size_;
   };
+
+  /** @}*/
 }
 
 // Implementation file

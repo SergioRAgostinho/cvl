@@ -1,33 +1,12 @@
 /**
-  * \author Sergio Agostinho - sergio.r.agostinho@gmail.com
+  * \author Sergio Agostinho - sergio(dot)r(dot)agostinho(at)gmail(dot)com
   * \date created: 2017/08/10
-  * \date last modified: 2017/08/10
+  * \date last modified: 2017/08/17
   */
 
 ////////////////////////////////////////
 //              Input
 ////////////////////////////////////////
-
-template<typename _EigenMatrix>
-ht::KDTree<_EigenMatrix>::KDTree (const int leaf_max_size)
-  : leaf_max_size_ (leaf_max_size)
-{}
-
-template<typename _EigenMatrix> void
-ht::KDTree<_EigenMatrix>::generateTreeIndex ()
-{
-  // tree_ = std::make_unique<Tree> (input_->cols (),
-  tree_ = std::make_unique<Tree> (
-                                  *input_,
-                                  leaf_max_size_);
-  tree_->index->buildIndex ();
-}
-
-template<typename _EigenMatrix> int
-ht::KDTree<_EigenMatrix>::getLeafMaxSize () const
-{
-  return leaf_max_size_;
-}
 
 template<typename _EigenMatrix> template<typename _Derived> void
 ht::KDTree<_EigenMatrix>::query ( std::vector<typename ht::KDTree<_EigenMatrix>::Index>& idxs,
@@ -50,14 +29,3 @@ ht::KDTree<_EigenMatrix>::query ( std::vector<typename ht::KDTree<_EigenMatrix>:
   tree_->index->findNeighbors (set, &pt[0], nanoflann::SearchParams (32, 0, sorted));
 }
 
-template<typename _EigenMatrix> void
-ht::KDTree<_EigenMatrix>::setInput (const ht::KDTree<_EigenMatrix>::InputConstPtr& input)
-{
-  input_ = input;
-}
-
-template<typename _EigenMatrix> void
-ht::KDTree<_EigenMatrix>::setLeafMaxSize (const int leaf_max_size)
-{
-  leaf_max_size_ = leaf_max_size;
-}

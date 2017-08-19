@@ -1,21 +1,16 @@
-# \author Sergio Agostinho - sergio.r.agostinho@gmail.com
+# \author Sergio Agostinho - sergio(dot)r(dot)agostinho(at)gmail(dot)com
 # \data created: 2017/07/30
-# \data last modified: 2017/07/30
+# \data last modified: 2017/08/17
 
 # module info
 set (MODULE_NAME visualization)
 set (TARGET_NAME "${PROJECT_NAME}_${MODULE_NAME}")
 
-set (BUILD_${MODULE_NAME} TRUE
-      CACHE BOOL
-      "Enables the compilation of the ${MODULE_NAME} module.")
-
 if (BUILD_${MODULE_NAME})
+
 	#files
 	set (headers
 	        "include/cvl/visualization/opencv.h")
-	# set (impls
-	#         "include/cvl/common/impl/geometry.hpp")
 	set (sources 	"src/opencv.cpp")
 
 	#target creation
@@ -26,5 +21,10 @@ if (BUILD_${MODULE_NAME})
 	target_include_directories (${TARGET_NAME} PUBLIC
 	                              "${CMAKE_CURRENT_SOURCE_DIR}/include"
 	                              ${OpenCV_INCLUDE_DIRS})
-	                              # ${EIGEN3_INCLUDE_DIR})
+
+  # install rules
+	install (TARGETS ${TARGET_NAME}
+						LIBRARY DESTINATION "lib"
+						ARCHIVE DESTINATION "lib")
+	install (FILES ${headers} DESTINATION "include/cvl/visualization")
 endif (BUILD_${MODULE_NAME})

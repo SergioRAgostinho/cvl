@@ -1,5 +1,5 @@
 /**
-  * \author Sergio Agostinho - sergio.r.agostinho@gmail.com
+  * \author Sergio Agostinho - sergio(dot)r(dot)agostinho(at)gmail(dot)com
   * \date created: 2017/05/04
   * \date last modified: 2017/05/04
   */
@@ -22,6 +22,6 @@ ht::Grabber::registerCb (const std::function<_Sig>& f)
     return false;
 
   const char* const type = typeid (_Sig).name ();
-  registered_cbs_[type].push_front (new Function<_Sig> (f));
+  registered_cbs_[type].emplace_front (new Function<_Sig> (f));
   return true;
 }

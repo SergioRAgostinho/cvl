@@ -1,8 +1,8 @@
-/**
-  * \author Sergio Agostinho - sergio.r.agostinho@gmail.com
-  * \date created: 2017/05/09
-  * \date last modified: 2017/07/28
-  */
+/*
+* author: Sergio Agostinho - sergio(dot)r(dot)agostinho(at)gmail(dot)com
+* date created: 2017/05/09
+* date last modified: 2017/08/18
+*/
 
 /////////////////////////////////////////////
 //              AxisAngle
