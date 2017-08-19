@@ -1,8 +1,8 @@
-/**
-  * \author Sergio Agostinho - sergio.r.agostinho@gmail.com
-  * \date created: 2017/08/11
-  * \date last modified: 2017/08/12
-  */
+/*
+* \author Sergio Agostinho - sergio(dot)r(dot)agostinho(at)gmail(dot)com
+* \date created: 2017/08/11
+* \date last modified: 2017/08/12
+*/
 template<typename _Mesh> _Mesh
 ht::DuplicateVertexRemoval<_Mesh>::filter ()
 {

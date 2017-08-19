@@ -1,6 +1,6 @@
-# \author Sergio Agostinho - sergio.r.agostinho@gmail.com
+# \author Sergio Agostinho - sergio(dot)r(dot)agostinho(at)gmail(dot)com
 # \data created: 2017/08/07
-# \data last modified: 2017/08/17
+# \data last modified: 2017/08/19
 
 set (MODULE_NAME search)
 set (TARGET_NAME "${PROJECT_NAME}_${MODULE_NAME}")
@@ -8,7 +8,8 @@ set (TARGET_NAME "${PROJECT_NAME}_${MODULE_NAME}")
 if (BUILD_${MODULE_NAME})
 
 	#files
-	set (headers "include/cvl/search/kdtree.h")
+	set (headers 	"include/cvl/search/kdtree.h"
+								"include/cvl/search/search.h")
 	set (impls "include/cvl/search/impl/kdtree.hpp")
 
 	#target properties and creations

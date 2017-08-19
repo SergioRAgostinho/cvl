@@ -1,4 +1,4 @@
-# \author Sergio Agostinho - sergio.r.agostinho@gmail.com
+# \author Sergio Agostinho - sergio(dot)r(dot)agostinho(at)gmail(dot)com
 # \data created: 2017/05/03
 # \data last modified: 2017/08/17
 
@@ -11,6 +11,7 @@ if (BUILD_${MODULE_NAME})
 	set (headers
 	        "include/cvl/common/algorithm.h"
 	        "include/cvl/common/camera.h"
+	        "include/cvl/common/common.h"
 	        "include/cvl/common/eigen.h"
 	        "include/cvl/common/function.h"
 	        "include/cvl/common/geometry.h"

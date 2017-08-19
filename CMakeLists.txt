@@ -1,10 +1,10 @@
-# \author Sergio Agostinho - sergio.r.agostinho@gmail.com
+# \author Sergio Agostinho - sergio(dot)r(dot)agostinho(at)gmail(dot)com
 # \data created: 2017/05/03
 # \data last modified: 2017/08/18
 
 # Project configurations
 cmake_minimum_required (VERSION 3.7)
-project (cvl)
+project (cvl VERSION 0.1)
 
 #compiler requirements
 set (CMAKE_CXX_STANDARD 14)
@@ -51,6 +51,7 @@ find_package (nanoflann)
 find_package (TinyXML2)
 find_package (Matlab COMPONENTS MAT_LIBRARY MX_LIBRARY)
 find_package (GTest)
+find_package (Doxygen 1.8.0)
 
 # Options
 option (BUILD_SHARED_LIBS "Selects if the library is build as shared library or a static one." ON)
@@ -94,3 +95,16 @@ configure_file(
 
 add_custom_target(uninstall
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+
+# docs
+if (Doxygen_FOUND)
+  configure_file(
+      "doc/Doxyfile.in"
+      "${CMAKE_CURRENT_BINARY_DIR}/doc/Doxyfile"
+      IMMEDIATE @ONLY)
+  add_custom_target (doc
+      COMMAND ${DOXYGEN_EXECUTABLE}
+      WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/doc"
+      COMMENT "Generating API documentation with Doxygen"
+      VERBATIM)
+endif (Doxygen_FOUND)

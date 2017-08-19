@@ -1,4 +1,4 @@
-# \author Sergio Agostinho - sergio.r.agostinho@gmail.com
+# \author Sergio Agostinho - sergio(dot)r(dot)agostinho(at)gmail(dot)com
 # \data created: 2017/05/03
 # \data last modified: 2017/08/17
 
@@ -10,6 +10,7 @@ if (BUILD_${MODULE_NAME})
   #files
   set (headers
           "include/cvl/io/grabber.h"
+          "include/cvl/io/io.h"
           "include/cvl/io/utils.h")
   set (impls
           "include/cvl/io/impl/grabber.hpp")

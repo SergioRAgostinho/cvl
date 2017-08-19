@@ -1,7 +1,9 @@
 /**
-  * \author Sergio Agostinho - sergio.r.agostinho@gmail.com
+  * \author Sergio Agostinho - sergio(dot)r(dot)agostinho(at)gmail(dot)com
   * \date created: 2017/08/11
-  * \date last modified: 2017/08/12
+  * \date last modified: 2017/08/18
+  * \file duplicate.h
+  * \brief Provides the header for the DuplicateVertexRemoval filter.
   */
 #pragma once
 #ifndef CVL_FILTER_DUPLICATE_H_
@@ -12,6 +14,10 @@
 
 namespace ht
 {
+  /** \addtogroup filter
+   *  @{
+   */
+
   /** \brief Class responsible for filtering duplicate vertexes */
   template<typename _Mesh>
   class DuplicateVertexRemoval
@@ -44,6 +50,8 @@ namespace ht
       float getThreshold () const { return threshold_; }
 
       /** \brief Sets the input mesh
+        * \note Setting a new input trigger the new data as dirty
+        * which forces the KDTree to be rebuilt for the new data
         * \param[in] mesh - a shared pointer to the input mesh
         */
       void setInput (const MeshPtrT& mesh)
@@ -73,6 +81,8 @@ namespace ht
       /** \brief An auxiliary KDTree used to search for the nearest neighbors */
       KDTree<Matrix<float, Dynamic, 3>> tree_;
   };
+
+  /** @}*/
 }
 
 #include <cvl/filter/impl/duplicate.hpp>

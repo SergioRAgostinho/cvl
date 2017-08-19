@@ -1,7 +1,11 @@
 /**
-  * \author Sergio Agostinho - sergio.r.agostinho@gmail.com
+  * \author Sergio Agostinho - sergio(dot)r(dot)agostinho(at)gmail(dot)com
   * \date created: 2017/05/05
-  * \date last modified: 2017/05/05
+  * \date last modified: 2017/08/19
+  * \file vgm_grabber.h
+  * \brief Provides the implementation of a grabber for the
+  * <a href="https://www.iit.it/research/lines/visual-geometry-and-modelling/datasets/514-vgm-6d-pose-of-texture-less-objects-dataset">
+  * VGM-Dataset: 6D Pose of Texture-less Objects (ICRA 2016)</a>
   */
 #pragma once
 #ifndef CVL_IO_VGM_GRABBER_H_
@@ -17,6 +21,18 @@
 
 namespace ht
 {
+  /** \addtogroup io
+   *  @{
+   */
+
+  /** \brief A grabber for parsing the VGM-Dataset
+    *
+    * The dataset can be found
+    * <a href="https://www.iit.it/research/lines/visual-geometry-and-modelling/datasets/514-vgm-6d-pose-of-texture-less-objects-dataset">
+    * here</a>.
+    * \note Please download all the code and models, and place them in
+    * respecting the intended structure explained in the instructions.
+    */
   class VgmGrabber : public Grabber
   {
     public:
@@ -56,10 +72,29 @@ namespace ht
       //                  Methods
       //////////////////////////////////////////////////////
 
+      /** \brief Ctor
+        *
+        * It requires providing the path to the folder of one of
+        * the models
+        * \param[in] path - that to the directory of a model e.g.,
+        * `<path_to>/vgm/data/Lshape0001/`
+        */
       VgmGrabber (const char* const path);
 
+      /** \brief Exposes the camera data used in the dataset
+        * acquisition.
+        * \return The reference to the Camera object.
+        */
       const Camera<double>& getCamera () const { return cam_; }
 
+      /** \brief Exposes the positions of the reference
+        * markers used by the VICON system.
+        * \note These values are already subtracted of
+        * the position of the frame of reference of the
+        * platform.
+        * \return The reference to the Matrix holding the
+        * positions.
+        */
       const Matrix<float, 3, Dynamic, ColMajor>&
       getReferencePoints () const { return refs_; }
 
@@ -68,7 +103,7 @@ namespace ht
       void stop () override;
 
       /** \brief Triggers the reading of data */
-      void trigger ();
+      void trigger () override;
       
     protected:
 
@@ -76,9 +111,24 @@ namespace ht
       //                  Types
       //////////////////////////////////////////////////////
 
+      /** \brief Callback flags
+        *
+        * The are used to determine which types of data
+        * are required to be fetched from the data set
+        * e.g., if the user doesn't request the images
+        * it's not worth to load them.
+        */
       enum CbFlags
       {
+        /** \brief This flag is set if theres a callback
+          * registered which requires the loading of images
+          */
         HAS_IMAGE = 0b1u,
+
+        /** \brief This flag is set if theres a callback
+          * registered which requires loading and computing
+          * the groundtruth motion.
+          */
         HAS_MOTION = 0b10u
       };
 
@@ -108,7 +158,7 @@ namespace ht
       cv::VideoCapture vc_;
 
       /** \brief The file handler responsible for reading the trajectories
-        * section of the grountruth data */
+        * section of the groundtruth data */
       std::ifstream f_;
 
       /** \brief Stores the stream position to start reading
@@ -165,15 +215,6 @@ namespace ht
                             const Vector4f& rvec,
                             const Vector4f& tvec) const;
 
-      /** \brief A callback returning the reference points trajectory
-        *  on each frame
-        * \param[in] id - the data frame serial identifier
-        * \param[in] pts - the reference points trajectory coordinates
-        * in the VICON reference frame.
-        */
-      // void cbVgmRefPoints ( const size_t id,
-      //                       const Matrix<float, 3, Dynamic, ColMajor>& pts) const;
-
       /** \brief Find the stream position to initialize the gt parsing
         * \param[in] id - string to find
         */
@@ -228,6 +269,8 @@ namespace ht
 
 
   };
+
+  /** @}*/
 }
 
 #endif //CVL_IO_VGM_GRABBER_H_

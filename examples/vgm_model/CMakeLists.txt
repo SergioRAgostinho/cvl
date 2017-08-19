@@ -1,4 +1,4 @@
-# \author Sergio Agostinho - sergio.r.agostinho@gmail.com
+# \author Sergio Agostinho - sergio(dot)r(dot)agostinho(at)gmail(dot)com
 # \data created: 2017/07/27
 # \data last modified: 2017/08/17
 
