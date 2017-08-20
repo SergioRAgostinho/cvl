@@ -8,7 +8,7 @@ This library was designed to be cross-platform on all three major desktop operat
 
 The code is licensed under the [Apache License 2.0](https://tldrlegal.com/license/apache-license-2.0-(apache-2.0)).
 
-Currently there's not much you can do with `cvl` other than running the `vgm_grabber` example. That example in particular loads a model from the dataset and renders its wireframe on top of the groundtruth footage provided. On its own it might look practically useless, but in order to achieve it a number of useful baseline code was implemented, which will definitely be worth something to any user wanting to make use of that dataset from C++. Then again this is version 0.1 of the library. Please refer to the Wiki page of the example for further information.
+Currently there's not much you can do with `cvl` other than running the [`vgm_grabber`](https://github.com/SergioRAgostinho/cvl/blob/master/examples/vgm_grabber/vgm_grabber.cpp) example. That example in particular loads a model from the dataset and renders its wireframe on top of the groundtruth footage provided. On its own it might look practically useless, but in order to achieve it a number of useful baseline code was implemented, which will definitely be worth something to any user wanting to make use of that dataset from C++. Then again this is version 0.1 of the library. Please refer to the [Wiki page](https://github.com/SergioRAgostinho/cvl/wiki/Running-the-vgm_grabber-example) of the example for further information.
 
 ## Requirements
 
