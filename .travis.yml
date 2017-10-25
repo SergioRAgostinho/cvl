@@ -1,10 +1,27 @@
 language: cpp
-os: osx
+os:
+  - linux
+  - osx
 compiler:
+  - gcc
   - clang
 env:
   - TASK="build"
   - TASK="doc"
+matrix:
+  exclude:
+    - os: linux
+      compiler: clang
+    - os: osx
+      compiler: gcc
+addons:
+  apt:
+    packages:
+      - bzip2
+      - zlib1g-dev
+      - libcurl4-openssl-dev
+      - libeigen3-dev
+      - doxygen
 install:
   - bash .travis.sh install
 script:

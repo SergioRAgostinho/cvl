@@ -12,6 +12,7 @@
 #include <cvl/common/eigen.h>
 #include <vector>
 #include <iostream>
+#include <memory>
 
 /** \addtogroup common
  *  @{
